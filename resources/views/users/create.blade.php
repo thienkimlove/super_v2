@@ -17,14 +17,7 @@
                 <a href="{{ route('users.index') }}" class="btn btn-primary waves-effect waves-light"><span class="m-r-5"><i class="fa fa-list"></i></span> List</a>
             </div>
             <h4 class="page-title">Tạo mới người dùng</h4>
-            <ol class="breadcrumb">
-                <li>
-                    <a href="{{ route('users.index') }}">Danh sách người dùng</a>
-                </li>
-                <li class="active">
-                    Tạo mới người dùng
-                </li>
-            </ol>
+
         </div>
     </div>
 
@@ -38,9 +31,9 @@
                         @include('layouts.partials.errors')
 
                         <div class="form-group">
-                            <label class="col-md-3 control-label">Tên người dùng</label>
+                            <label class="col-md-3 control-label">Username</label>
                             <div class="col-md-9">
-                                {!! Form::text('name', null, ['id' => 'name', 'class' => 'form-control', 'placeholder' => 'Tên người dùng', 'required' => 'required']) !!}
+                                {!! Form::text('username', null, ['id' => 'username', 'class' => 'form-control', 'placeholder' => 'Tên người dùng', 'required' => 'required']) !!}
                             </div>
                         </div>
 
@@ -52,31 +45,12 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-md-3 control-label">Roles</label>
+                            <label class="col-md-3 control-label">Group</label>
                             <div class="col-md-9">
-                                {!! Form::select('roles[]', Helpers::roleList(), null, ['id' => 'roles', 'class' => 'form-control', 'data-placeholder' => 'Chọn quyền...']) !!}
+                                {!! Form::select('group_id', ['' => '----- Chọn Group -----'] + \App\Site::groupList(), null, ['id' => 'group_id', 'class' => 'select2', 'data-placeholder' => 'Chọn group...']) !!}
                             </div>
 
                         </div>
-
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">Phòng ban</label>
-                            <div class="col-md-9">
-                                {!! Form::select('department_id', ['' => '----- Chọn phòng ban -----'] + Helpers::departmentList(), null, ['id' => 'department_id', 'class' => 'select2', 'data-placeholder' => 'Chọn phòng ban...']) !!}
-                            </div>
-
-                        </div>
-
-
-
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">Danh sách Tài Khoản Quảng Cáo</label>
-                            <div class="col-md-9">
-                                {!! Form::select('contents[]',  ['' => '----- Chọn Tài Khoản -----'] + Helpers::contentListForCreate(), null, ['id' => 'contents', 'multiple' => true, 'class' => 'select2 select2-multiple', 'data-placeholder' => 'Choose Ad Accounts...']) !!}
-                            </div>
-
-                        </div>
-
 
 
                         <div class="form-group">
@@ -124,24 +98,6 @@
 <script>
     (function($){
         $('.select2').select2();
-
-        $('#roles').on('change', function(e) {
-            if ('Admin' != $("#roles option:selected").text()) {
-                $('#department_id').attr('required', true);
-            } else {
-                $('#department_id').attr('required', false);
-
-            }
-        });
-
-        $('#contents').on('change', function(e) {
-            if ('Admin' != $("#contents option:selected").text()) {
-                $('#contents').attr('required', true);
-            } else {
-                $('#contents').attr('required', false);
-
-            }
-        });
 
     })(jQuery);
 </script>

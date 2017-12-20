@@ -30,15 +30,11 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="btn-group pull-right m-t-15">
-                <a href="/users/create"><button type="button" class="btn btn-default dropdown-toggle waves-effect" >Tạo mới <span class="m-l-5"><i class="fa fa-plus"></i></span></button></a>
+                <a href="/admin/users/create"><button type="button" class="btn btn-default dropdown-toggle waves-effect" >Tạo mới <span class="m-l-5"><i class="fa fa-plus"></i></span></button></a>
             </div>
 
             <h4 class="page-title">Danh sách người dùng</h4>
-            <ol class="breadcrumb">
-                <li class="active">
-                    Danh sách User
-                </li>
-            </ol>
+
         </div>
     </div>
 
