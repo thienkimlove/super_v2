@@ -27,7 +27,7 @@ class UsersController extends AdminController
 
     public function index()
     {
-        return view('user.index');
+        return view('users.index');
     }
 
     public function dataTables(Request $request)
