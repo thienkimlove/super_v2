@@ -37,6 +37,11 @@ class User extends Model implements AuthenticatableContract
         return $this->belongsTo(Group::class);
     }
 
+    public function isAdmin()
+    {
+        return ($this->permission_id == 1);
+    }
+
     public static function getDataTables($request)
     {
         $user = static::select('*')->with('group');
