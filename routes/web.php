@@ -19,7 +19,7 @@ Route::get('/', function () {
 
 #Admin Routes
 Route::get('admin/login', 'Backend\AuthController@redirectToGoogle')->name('auth.login');
-Route::get('admin/logout', 'Backend\AuthController@logout')->name('auth.login');
+Route::get('admin/logout', 'Backend\AuthController@logout')->name('logout');
 Route::get('admin/callback', 'Backend\AuthController@handleGoogleCallback')->name('auth.callback');
 
 
