@@ -55,7 +55,7 @@
 
                             <div class="form-group m-l-10">
                                 <label class="sr-only" for="">Group</label>
-                                {!! Form::select('group_id', ['' => '--- Chọn Group ---'] + Site::groupList(), null, ['class' => 'form-control select2']) !!}
+                                {!! Form::select('group_id', ['' => '--- Chọn Group ---'] + \App\Site::groupList(), null, ['class' => 'form-control select2']) !!}
                             </div>
 
                             <button type="submit" class="btn btn-success waves-effect waves-light m-l-15">Tìm kiếm</button>
