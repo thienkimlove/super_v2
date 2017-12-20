@@ -25,25 +25,14 @@ class UsersController extends AdminController
         $this->groups = ['' => 'Choose group'] + Group::pluck('name', 'id')->all();
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $searchUser = null;
+        return view('admin.user.index');
+    }
 
-        $users = User::latest('updated_at');
-
-        if ($request->input('q')) {
-            $searchUser = urldecode($request->input('q'));
-            $users = $users->where('username', 'LIKE', '%'. $searchUser. '%');
-        }
-
-
-        if ($request->input('filter')) {
-            $users = $users->where('status', false);
-        }
-
-        $users = $users->paginate(10);
-
-        return view('admin.user.index', compact('users', 'searchUser'));
+    public function dataTables(Request $request)
+    {
+        return User::getDataTables($request);
     }
 
     public function create()

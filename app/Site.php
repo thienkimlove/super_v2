@@ -8,6 +8,11 @@ use GuzzleHttp\Client;
 class Site
 {
 
+    public static function groupList()
+    {
+        return Group::pluck('name', 'id')->all();
+    }
+
     public static function parseOffer($offer, $network)
     {
         $isIphone = false;

@@ -52,29 +52,12 @@
                                 <label class="sr-only" for="">User name</label>
                                 <input type="text" class="form-control" placeholder="Tên người dùng" name="name"/>
                             </div>
-                            <div class="form-group m-l-10">
-                                <label class="sr-only" for="">Email</label>
-                                <input type="text" class="form-control" placeholder="Email" name="email"/>
-                            </div>
-                            @if (Sentinel::getUser()->isAdmin())
 
                             <div class="form-group m-l-10">
-                                <label class="sr-only" for="">Phân quyền</label>
-                                {!! Form::select('role_id', ['' => '--- Chọn quyền ---'] + Helpers::roleList(), null, ['class' => 'form-control select2']) !!}
+                                <label class="sr-only" for="">Group</label>
+                                {!! Form::select('group_id', ['' => '--- Chọn Group ---'] + Site::groupList(), null, ['class' => 'form-control select2']) !!}
                             </div>
-                            @endif
 
-                            @if (Sentinel::getUser()->isAdmin())
-                                <div class="form-group m-l-10">
-                                    <label class="sr-only" for="">Phòng ban</label>
-                                    {!! Form::select('department_id', ['' => '--- Chọn phòng ban ---'] + Helpers::departmentList(), null, ['class' => 'form-control select2']) !!}
-                                </div>
-                            @endif
-
-                            <div class="form-group m-l-10">
-                                <label class="sr-only" for="">Trạng thái</label>
-                                {!! Form::select('status', ['' => '--- Chọn trạng thái ---'] + config('system.user_status'), null, ['class' => 'form-control']) !!}
-                            </div>
                             <button type="submit" class="btn btn-success waves-effect waves-light m-l-15">Tìm kiếm</button>
                         </form>
                     </div>
@@ -93,9 +76,7 @@
                     <tr>
                         <th width="10%">Tên người dùng</th>
                         <th width="15%">Email</th>
-                        <th width="15%">Phòng ban</th>
-                        <th width="10%">Danh sách TKQC</th>
-                        <th width="10%">Phân quyền</th>
+                        <th width="15%">Group</th>
                         <th width="10%">Trạng thái</th>
                         <th width="10%">Ngày tạo</th>
                         <th width="8%"></th>
@@ -148,24 +129,18 @@
                     url: '{!! route('users.dataTables') !!}',
                     data: function (d) {
                         d.name = $('input[name=name]').val();
-                        d.email = $('input[name=email]').val();
-                        d.role_id = $('select[name=role_id]').val();
-                        d.store_id = $('select[name=store_id]').val();
-                        d.department_id = $('select[name=department_id]').val();
-                        d.status = $('select[name=status]').val();
+                        d.group_id = $('select[name=group_id]').val();
                     }
                 },
                 columns: [
                     {data: 'name', name: 'name'},
                     {data: 'email', name: 'email'},
-                    {data: 'department_name', name: 'department_id'},
-                    {data: 'contents', name: 'contents'},
-                    {data: 'roles', name: 'roles', orderable: false, searchable: false},
+                    {data: 'group_name', name: 'group_name'},
                     {data: 'status', name: 'status'},
                     {data: 'created_at', name: 'created_at'},
                     {data: 'action', name: 'action', orderable: false, searchable: false}
                 ],
-                order: [[6, 'desc']]
+                order: [[5, 'desc']]
             });
 
             $('#search-form').on('submit', function(e) {
