@@ -33,7 +33,7 @@
                 <a href="/admin/users/create"><button type="button" class="btn btn-default dropdown-toggle waves-effect" >Tạo mới <span class="m-l-5"><i class="fa fa-plus"></i></span></button></a>
             </div>
 
-            <h4 class="page-title">Danh sách người dùng</h4>
+            <h4 class="page-title">Danh sách Offer</h4>
 
         </div>
     </div>
@@ -44,15 +44,53 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <form class="form-inline" role="form" id="search-form">
+
+
                             <div class="form-group m-l-10">
-                                <label class="sr-only" for="">Username</label>
-                                <input type="text" class="form-control" placeholder="Tên người dùng" name="username"/>
+                                <label class="sr-only" for="">Offer Name</label>
+                                <input type="text" class="form-control" placeholder="Tên Offer" name="name"/>
                             </div>
 
                             <div class="form-group m-l-10">
-                                <label class="sr-only" for="">Group</label>
-                                {!! Form::select('group_id', ['' => '--- Chọn Group ---'] + \App\Site::groupList(), null, ['class' => 'form-control select2']) !!}
+                                <label class="sr-only" for="">Country</label>
+                                <input type="text" class="form-control" placeholder="Country" name="country"/>
                             </div>
+
+
+                            <div class="form-group m-l-10">
+                                <label class="sr-only" for="">Offer Id or Net Offer Id</label>
+                                <input type="text" class="form-control" placeholder="Uid" name="uid"/>
+                            </div>
+
+
+                            <div class="form-group m-l-10">
+                                <label class="sr-only" for="">Devices</label>
+                                {!! Form::select('device', ['' => '--- Chọn Devices ---'] + config('devices'), null, ['class' => 'form-control select2']) !!}
+                            </div>
+
+
+                            @if (auth('backend')->user()->isAdmin())
+
+                            <div class="form-group m-l-10">
+                                <label class="sr-only" for="">Network</label>
+                                {!! Form::select('network_id', ['' => '--- Chọn Network ---'] + \App\Site::networkList(), null, ['class' => 'form-control select2']) !!}
+                            </div>
+
+
+                            <div class="form-group m-l-10">
+                                <label class="sr-only" for="">Auto Or Not</label>
+                                {!! Form::select('auto', [1 => 'Auto', 0 => 'Manual'], null, ['class' => 'form-control']) !!}
+                            </div>
+
+
+                                <div class="form-group m-l-10">
+                                    <label class="sr-only" for="">Status</label>
+                                    {!! Form::select('status', [1 => 'Active', 0 => 'Inactive'], null, ['class' => 'form-control']) !!}
+                                </div>
+
+                            @endif
+
+
 
                             <button type="submit" class="btn btn-success waves-effect waves-light m-l-15">Tìm kiếm</button>
                         </form>
@@ -66,15 +104,28 @@
         <div class="col-sm-12">
             <div class="card-box table-responsive">
                 <p class="text-muted font-13 m-b-30"></p>
-                <table id="dataTables-users" class="table table-striped table-bordered table-actions-bar">
+                <table id="dataTables-offers" class="table table-striped table-bordered table-actions-bar">
                     <thead>
                     <tr>
-                        <th width="10%">Username</th>
-                        <th width="15%">Email</th>
-                        <th width="15%">Group</th>
-                        <th width="10%">Trạng thái</th>
-                        <th width="10%">Ngày tạo</th>
-                        <th width="8%"></th>
+                        @if (auth('backend')->user()->isAdmin())
+                            <th>Network OfferID</th>
+                        @endif
+                        <th>Name</th>
+                        <th>Price Per Click</th>
+                        <th>Geo Locations</th>
+                        <th>Allow Devices</th>
+                        <th>Link To Lead</th>
+                        <th>Status</th>
+                        <th>Created Date</th>
+                        @if (auth('backend')->user()->isAdmin())
+                            <th>True Link</th>
+                            <th>Allow Multi Lead</th>
+                            <th>Check Click In Network</th>
+                            <th>Virtual Clicks</th>
+                            <th>Network</th>
+                            <th>Action</th>
+                        @endif
+                        <th></th>
                     </tr>
                     </thead>
                 </table>
@@ -116,23 +167,39 @@
         $('.select2').select2();
 
         $(function () {
-            var datatable = $("#dataTables-users").DataTable({
+            var datatable = $("#dataTables-offers").DataTable({
                 searching: false,
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: '{!! route('users.dataTables') !!}',
+                    url: '{!! route('offers.dataTables') !!}',
                     data: function (d) {
-                        d.username = $('input[name=username]').val();
-                        d.group_id = $('select[name=group_id]').val();
+                        d.name = $('input[name=name]').val();
+                        d.country = $('input[name=country]').val();
+                        d.uid = $('input[name=uid]').val();
+                        d.device = $('select[name=device]').val();
+                        d.network_id = $('select[name=network_id]').val();
+                        d.auto = $('select[name=auto]').val();
+                        d.status = $('select[name=status]').val();
                     }
                 },
                 columns: [
-                    {data: 'username', name: 'username'},
-                    {data: 'email', name: 'email'},
-                    {data: 'group_name', name: 'group_name'},
+                    {data: 'net_offer_id', name: 'net_offer_id'},
+                    {data: 'name', name: 'name'},
+                    {data: 'click_rate', name: 'click_rate'},
+                    {data: 'geo_locations', name: 'geo_locations'},
+                    {data: 'allow_devices', name: 'allow_devices'},
+                    {data: 'redirect_link_for_user', name: 'redirect_link_for_user'},
                     {data: 'status', name: 'status'},
                     {data: 'created_at', name: 'created_at'},
+
+                    {data: 'redirect_link', name: 'redirect_link'},
+                    {data: 'allow_multi_lead', name: 'allow_multi_lead'},
+                    {data: 'check_click_in_network', name: 'check_click_in_network'},
+                    {data: 'number_when_click', name: 'number_when_click'},
+                    {data: 'number_when_lead', name: 'number_when_lead'},
+                    {data: 'network_name', name: 'network_name'},
+
                     {data: 'action', name: 'action', orderable: false, searchable: false}
                 ],
                 order: [[5, 'desc']]

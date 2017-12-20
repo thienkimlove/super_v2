@@ -17,6 +17,11 @@ class AuthController
         return Socialite::driver('google')->redirect();
     }
 
+    public function notice()
+    {
+        return view('notice');
+    }
+
 
     /**
      * Handle callback from G+.
@@ -30,13 +35,15 @@ class AuthController
 
             if ($authUser) {
                 auth('backend')->login($authUser, true);
+                session()->put('google_token', $user->token);
                 return redirect('admin');
             } else {
                 flash('User with email='.$user->email.' not existed in database.', 'error');
-                return redirect('/');
+                return redirect('notice');
             }
         } catch (Exception $e) {
-            return redirect('admin/login');
+            flash($e->getMessage(), 'error');
+            return redirect('notice');
         }
 
     }
@@ -49,7 +56,10 @@ class AuthController
     {
         auth('backend')->logout();
 
-        return redirect('/');
+        @file_get_contents('https://accounts.google.com/o/oauth2/revoke?token='.session()->get('google_token'));
+        session()->forget('google_token');
+        flash('info', 'Bạn đã đăng xuất thành công!');
+        return redirect('notice');
     }
 
 }

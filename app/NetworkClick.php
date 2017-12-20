@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Yajra\DataTables\Facades\DataTables;
 
 class NetworkClick extends Model
 {
@@ -22,4 +23,15 @@ class NetworkClick extends Model
     {
         return $this->belongsTo(Network::class);
     }
+
+    public function offer()
+    {
+        return $this->belongsTo(Offer::class);
+    }
+
+    public function click()
+    {
+        return $this->belongsTo(Click::class);
+    }
+
 }

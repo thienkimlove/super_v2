@@ -8,85 +8,363 @@
 
 @section('content')
     @php
-        $currentUser = Sentinel::getUser();
+        $currentUser = auth('backend')->user();
     @endphp
     <div class="row">
         <div class="col-sm-12">
             {{--<h4 class="page-title">HỆ THỐNG CUSTOMER SERVICES</h4>--}}
-            <p class="text-muted page-title-alt">Welcome {{ $currentUser->name }}</p>
+            <p class="text-muted page-title-alt">Welcome {{ $currentUser->username }}</p>
         </div>
 
     </div>
 
-    @if ($currentUser->department_id)
-        @include('fb_add')
-    @endif
+    <div class="row">
 
-    @if ($currentUser->isAdmin())
-        @include('dashboard._admin')
-    @elseif ($currentUser->isManager())
-
-        @include('dashboard._manager')
-    @else
-        @include('dashboard._staff')
-    @endif
-
-
-    <div id="list-content-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="custom-width-modalLabel" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog" style="width:55%;">
-            <div class="modal-content">
-                <form class="form-horizontal" action="{{ route('contents.updateMapUser') }}" role="form" method="post">
-
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="custom-width-modalLabel">Cài đặt Ads Accounts</h4>
-                </div>
-                <div class="modal-body">
+        <div class="col-lg-3 col-md-4">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
                     <div class="row">
-                        <div class="col-sm-12">
-
-                            {{ csrf_field() }}
-
-                            <div class="table-responsive">
-                                <table id="datatable" class="table table-striped table-bordered">
-                                    <thead>
-                                    <tr>
-                                        <th>Social ID</th>
-                                        <th>Social name</th>
-                                        <th>Trạng thái</th>
-                                        <th>On / Off</th>
-                                    </tr>
-                                    </thead>
-
-
-                                    <tbody>
-
-                                    @foreach ($contents as $content)
-                                    <tr>
-                                        <td>{{ $content->social_id }}</td>
-                                        <td>{{ $content->social_name }}</td>
-                                        <td>{!! $content->status ? '<i class="ion ion-checkmark-circled text-success"></i>' : '<i class="ion ion-close-circled text-danger"></i>'  !!} </td>
-                                        <td> {!! Form::checkbox('status[]', $content->id, ($content->user_id == $currentUser->id) ? 1 : 0, ['data-plugin' => 'switchery', 'data-color' => '#81c868']) !!}<span class="lbl"></span>
-                                            <input type="hidden" name="contents[]" value="{{$content->id}}" />
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-
+                        <div class="col-xs-3">
+                            <i class="fa fa-comments fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">{{$content['today']}}</div>
+                            <div>Money Today</div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary waves-effect waves-light">Cập nhật</button>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-4">
+            <div class="panel panel-green">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-tasks fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">{{$content['month']}}</div>
+                            <div>Money This Month</div>
+                        </div>
+                    </div>
                 </div>
-                </form>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-4">
+            <div class="panel panel-yellow">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-shopping-cart fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">{{$content['total']}}</div>
+                            <div>Total</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+    </div>
 
+    <div class="row">
+        <div class="col-lg-6">
+            <!-- /.panel -->
+            <div class="panel panel-default">
+
+                <div class="panel-heading">
+                    <i class="fa fa-bar-chart-o fa-fw"></i> Statistic By User Today
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Money</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ($userTotals as $userTotal)
+                                <tr>
+                                    <td>{{$userTotal['username']}}</td>
+                                    <td>{{$userTotal['total']}}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.row -->
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+
+        <div class="col-lg-6">
+            <div class="panel panel-default">
+
+                <div class="panel-heading">
+                    <i class="fa fa-bar-chart-o fa-fw"></i> Statistic By Network Today
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th>Network</th>
+                                <th>Money</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ($networkTotals as $networkTotal)
+                                <tr>
+                                    <td>{{$networkTotal['name']}}</td>
+                                    <td>{{$networkTotal['total']}}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.row -->
+                </div>
+                <!-- /.panel-body -->
+            </div>    <!-- /.panel -->
+        </div>
+
+    </div>
+
+    @if ($todayOffers)
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- /.panel -->
+                <div class="panel panel-default">
+
+                    <div class="panel-heading">
+                        <i class="fa fa-bar-chart-o fa-fw"></i> Danh sách offer chạy ngày hôm nay
+                    </div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>ID</th>
+                                            <th>Clicks</th>
+                                            <th>Lead</th>
+                                            <th>CR</th>
+                                            <th>Price</th>
+                                            <th>Total</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach ($todayOffers as $offer)
+                                            <tr>
+                                                <td>{{$offer['offer_name']}}</td>
+                                                <td>{{$offer['offer_id']}}</td>
+                                                <td>{{$offer['site_click'] }}</td>
+                                                <td>{{$offer['net_lead']}}</td>
+                                                <td>{{ $offer['site_cr'] }}</td>
+                                                <td>{{ $offer['offer_price'] }}</td>
+                                                <td>{{ $offer['offer_total'] }}</td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- /.table-responsive -->
+                            </div>
+                            <!-- /.col-lg-4 (nested) -->
+
+                            <!-- /.col-lg-8 (nested) -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.panel-body -->
+                </div>            <!-- /.panel -->
+
+                <!-- /.panel -->
+            </div>
+        </div>
+    @endif
+
+    @if ($yesterdayOffers)
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- /.panel -->
+                <div class="panel panel-default">
+
+                    <div class="panel-heading">
+                        <i class="fa fa-bar-chart-o fa-fw"></i> Danh sách offer chạy ngày hôm qua
+                    </div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>ID</th>
+                                            <th>Clicks</th>
+                                            <th>Lead</th>
+                                            <th>CR</th>
+                                            <th>Price</th>
+                                            <th>Total</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach ($yesterdayOffers as $offer)
+                                            <tr>
+                                                <td>{{$offer['offer_name']}}</td>
+                                                <td>{{$offer['offer_id']}}</td>
+                                                <td>{{$offer['site_click'] }}</td>
+                                                <td>{{$offer['net_lead']}}</td>
+                                                <td>{{ $offer['site_cr'] }}</td>
+                                                <td>{{ $offer['offer_price'] }}</td>
+                                                <td>{{ $offer['offer_total'] }}</td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- /.table-responsive -->
+                            </div>
+                            <!-- /.col-lg-4 (nested) -->
+
+                            <!-- /.col-lg-8 (nested) -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.panel-body -->
+                </div>            <!-- /.panel -->
+
+                <!-- /.panel -->
+            </div>
+        </div>
+    @endif
+
+    @if ($weekOffers)
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- /.panel -->
+                <div class="panel panel-default">
+
+                    <div class="panel-heading">
+                        <i class="fa fa-bar-chart-o fa-fw"></i> Danh sách offer chạy tuần này
+                    </div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>ID</th>
+                                            <th>Clicks</th>
+                                            <th>Lead</th>
+                                            <th>CR</th>
+                                            <th>Price</th>
+                                            <th>Total</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach ($weekOffers as $offer)
+                                            <tr>
+                                                <td>{{$offer['offer_name']}}</td>
+                                                <td>{{$offer['offer_id']}}</td>
+                                                <td>{{$offer['site_click'] }}</td>
+                                                <td>{{$offer['net_lead']}}</td>
+                                                <td>{{ $offer['site_cr'] }}</td>
+                                                <td>{{ $offer['offer_price'] }}</td>
+                                                <td>{{ $offer['offer_total'] }}</td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- /.table-responsive -->
+                            </div>
+                            <!-- /.col-lg-4 (nested) -->
+
+                            <!-- /.col-lg-8 (nested) -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.panel-body -->
+                </div>            <!-- /.panel -->
+
+                <!-- /.panel -->
+            </div>
+        </div>
+    @endif
+
+    @if (!$currentUser->isAdmin())
+        <div class="row">
+            <!-- /.col-lg-8 -->
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-bell fa-fw"></i> Your Recent Lead
+                    </div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body">
+                        <div class="list-group">
+                            @foreach ($userRecent as $recent)
+                                <a class="list-group-item" href="#">
+                                    <b>You</b> lead offer <b>{{$recent->name}}</b> with IP <b>{{$recent->ip}}</b>
+                                    <span class="pull-right text-muted small">
+                                    <em>{{$recent->created_at}}</em>
+                                </span>
+                                </a>
+                            @endforeach
+                        </div>
+                        <!-- /.list-group -->
+                        <a class="btn btn-default btn-block" href="{{url('admin/offers')}}">View All Offers</a>
+                    </div>
+                    <!-- /.panel-body -->
+                </div>
+                <!-- /.panel -->
+            </div>
+            <!-- /.col-lg-4 -->
+        </div>
+    @endif
+
+    <div class="row" id="site-recent-lead">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-bell fa-fw"></i>Site Recent Lead
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="list-group">
+                        @foreach ($siteRecentLead as $recent)
+                            <a class="list-group-item" href="#">
+                                <b>{{$recent->username}} </b> lead offer <b>{{$recent->name}}</b> with IP <b>{{$recent->network_ip}}</b> - ID=<b>{{$recent->id}} | Time Click: {{$recent->click_at}} || postbackId= {{$recent->postback_id}}</b>
+                                <span class="pull-right text-muted small">
+                            <em>{{$recent->created_at}}</em>
+                         </span>
+                            </a>
+                        @endforeach
+                    </div>
+                    <!-- /.list-group -->
+                    <a class="btn btn-default btn-block" href="{{url('admin/offers')}}">View All Offers</a>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+    </div>
 
     <!-- End row -->
 @endsection
@@ -100,13 +378,3 @@
     {{--<script src="/vendor/ubold/assets/pages/jquery.c3-chart.init.js"></script>--}}
 
 @endsection
-
-@push('inlinescripts')
-    <script>
-        @if (isset($contents) && $contents)
-        $('#list-content-modal').modal({
-            show: 'true'
-        });
-        @endif
-    </script>
-@endpush

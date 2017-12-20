@@ -44,7 +44,7 @@
             </div>
             <div class="form-group text-center m-t-40">
                 <div class="col-xs-12">
-                    <a href="{{url('/')}}" class="text-primary m-l-5">
+                    <a href="{{url('/admin')}}" class="text-primary m-l-5">
                         <button class="btn btn-pink btn-block text-uppercase waves-effect waves-light"
                                 type="button">
                               Back

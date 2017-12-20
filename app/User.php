@@ -44,7 +44,7 @@ class User extends Model implements AuthenticatableContract
 
     public static function getDataTables($request)
     {
-        $user = static::select('*')->with('group');
+        $user = static::select('*')->with('group')->latest('created_at');
 
         return DataTables::of($user)
             ->filter(function ($query) use ($request) {

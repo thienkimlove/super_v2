@@ -23,6 +23,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $viewComposers = [
+            'App\Http\ViewComposers\ViSudoViewComposer' => [
+                'layouts.app',
+                'visudo.*',
+            ],
+        ];
+
+        foreach ($viewComposers as $key => $value) {
+            view()->composer($value, $key);
+        }
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App;
 
-use File;
 use GuzzleHttp\Client;
 
 class Site
@@ -12,6 +11,12 @@ class Site
     {
         return Group::pluck('name', 'id')->all();
     }
+
+    public static function networkList()
+    {
+        return Network::pluck('name', 'id')->all();
+    }
+
 
     public static function parseOffer($offer, $network)
     {

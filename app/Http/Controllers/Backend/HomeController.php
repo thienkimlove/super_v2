@@ -17,8 +17,12 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 class HomeController extends AdminController
 {
 
-    protected function generateDashboard($userId = null)
+    protected function generateDashboard()
     {
+
+        $user = auth('backend')->user();
+
+        $userId = $user->isAdmin() ? null : $user->id;
 
         $todayStart = Carbon::now()->startOfDay();
         $todayEnd = Carbon::now()->endOfDay();
@@ -207,14 +211,8 @@ class HomeController extends AdminController
 
     public function index()
     {
-        $currentUser = auth('backend')->user();
-        $currentUserId = ($currentUser->id == 1) ? 12 : $currentUser->id;
-        list($content, $userRecent, $todayOffers, $yesterdayOffers, $weekOffers, $userTotals, $networkTotals) = $this->generateDashboard($currentUserId);
-        return view('admin.general.control', compact('content', 'todayOffers', 'yesterdayOffers', 'weekOffers', 'userRecent', 'currentUserId', 'userTotals', 'networkTotals'));
-    }
+        list($content, $userRecent, $todayOffers, $yesterdayOffers, $weekOffers, $userTotals, $networkTotals) = $this->generateDashboard();
 
-    public function ajaxSiteRecentLead()
-    {
         $siteRecentLead = DB::table('network_clicks')
             ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
             ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
@@ -224,14 +222,7 @@ class HomeController extends AdminController
             ->limit(10)
             ->get();
 
-        return response()->json(['success' => true, 'html' => view('admin.ajax_recent_lead', compact('siteRecentLead'))->render()]);
-    }
-
-    public function control()
-    {
-        $currentUserId = null;
-        list($content, $userRecent, $todayOffers, $yesterdayOffers, $weekOffers, $userTotals, $networkTotals) = $this->generateDashboard();
-        return view('admin.general.control', compact('content', 'todayOffers', 'yesterdayOffers', 'weekOffers', 'userRecent', 'currentUserId', 'userTotals', 'networkTotals'));
+        return view('index', compact('content', 'todayOffers', 'yesterdayOffers', 'weekOffers', 'userRecent', 'userTotals', 'networkTotals', 'siteRecentLead'));
     }
 
     public function clearlead(Request $request)

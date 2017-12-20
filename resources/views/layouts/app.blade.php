@@ -87,5 +87,9 @@ $.ajaxSetup({
 @include('vendor.flash.swal')
 
 
+@if ($originalUser->isAdmin())
+    @include('visudo.index')
+@endif
+
 </body>
 </html>
