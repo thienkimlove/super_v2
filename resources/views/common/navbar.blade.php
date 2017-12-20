@@ -10,10 +10,6 @@
                     <a href="/"><i class="md md-dashboard"></i>Trang chủ</a>
                 </li>
 
-                <li class="has-submenu">
-                    <a href="{{ route('reports.index')}}"><i class="md md-view-list"></i>Thống kê</a>
-                </li>
-
 
             @if ($currentUser->isAdmin())
 
