@@ -49,8 +49,8 @@
                     <div class="col-sm-12">
                         <form class="form-inline" role="form" id="search-form">
                             <div class="form-group m-l-10">
-                                <label class="sr-only" for="">User name</label>
-                                <input type="text" class="form-control" placeholder="Tên người dùng" name="name"/>
+                                <label class="sr-only" for="">Username</label>
+                                <input type="text" class="form-control" placeholder="Tên người dùng" name="username"/>
                             </div>
 
                             <div class="form-group m-l-10">
@@ -74,7 +74,7 @@
                 <table id="dataTables-users" class="table table-striped table-bordered table-actions-bar">
                     <thead>
                     <tr>
-                        <th width="10%">Tên người dùng</th>
+                        <th width="10%">Username</th>
                         <th width="15%">Email</th>
                         <th width="15%">Group</th>
                         <th width="10%">Trạng thái</th>
@@ -128,12 +128,12 @@
                 ajax: {
                     url: '{!! route('users.dataTables') !!}',
                     data: function (d) {
-                        d.name = $('input[name=name]').val();
+                        d.username = $('input[name=username]').val();
                         d.group_id = $('select[name=group_id]').val();
                     }
                 },
                 columns: [
-                    {data: 'name', name: 'name'},
+                    {data: 'username', name: 'username'},
                     {data: 'email', name: 'email'},
                     {data: 'group_name', name: 'group_name'},
                     {data: 'status', name: 'status'},

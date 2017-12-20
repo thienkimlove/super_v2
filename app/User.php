@@ -48,8 +48,8 @@ class User extends Model implements AuthenticatableContract
 
         return DataTables::of($user)
             ->filter(function ($query) use ($request) {
-                if ($request->filled('name')) {
-                    $query->where('name', 'like', '%' . $request->get('name') . '%');
+                if ($request->filled('username')) {
+                    $query->where('username', 'like', '%' . $request->get('username') . '%');
                 }
 
                 if ($request->filled('group_id')) {
@@ -66,7 +66,7 @@ class User extends Model implements AuthenticatableContract
                 return '<a class="table-action-btn" title="Chỉnh sửa người dùng" href="' . route('users.edit', $user->id) . '"><i class="fa fa-pencil text-success"></i></a>';
 
             })
-            ->rawColumns(['group_name', 'status', 'action', 'email', 'name'])
+            ->rawColumns(['group_name', 'status', 'action', 'email', 'username'])
             ->make(true);
     }
 }
