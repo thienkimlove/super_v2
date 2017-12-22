@@ -357,7 +357,7 @@
     <script>
         $(document).ready(function(){
             setInterval(function(){
-                $('#site-recent-lead').html('<img width="200" align="center" height="auto" src="/image/loading.gif" />');
+              //  $('#site-recent-lead').html('<img width="200" align="center" height="auto" src="/image/loading.gif" />');
                 $.getJSON('/admin/recentLead', function(response){
                     $('#site-recent-lead').html(response.html);
                 });
