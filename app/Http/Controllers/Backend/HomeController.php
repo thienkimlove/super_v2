@@ -647,4 +647,15 @@ class HomeController extends AdminController
 
     }
 
+    public function clearFinishLog()
+    {
+
+        \DB::connection('virtual')->table('logs')->where('sent', 1)->delete();
+
+        flash('success', 'Clear old Virtual Logs!');
+
+        return redirect()->back();
+
+    }
+
 }

@@ -186,6 +186,7 @@ return [
         Jenssegers\Agent\AgentServiceProvider::class,
         Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
+        Torann\GeoIP\GeoIPServiceProvider::class,
 
     ],
 

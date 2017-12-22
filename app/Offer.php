@@ -100,7 +100,7 @@ class Offer extends Model
                 return $offer->allow_multi_lead ? '<i class="ion ion-checkmark-circled text-success"></i>' : '<i class="ion ion-close-circled text-danger"></i>';
             })
             ->editColumn('geo_locations', function ($offer) {
-                return str_limit($offer->geo_locations, 40);
+                return str_limit($offer->geo_locations, 20);
             })
             ->editColumn('status', function ($offer) {
                 return $offer->status ? '<i class="ion ion-checkmark-circled text-success"></i>' : '<i class="ion ion-close-circled text-danger"></i>';

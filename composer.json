@@ -9,6 +9,7 @@
         "barryvdh/laravel-ide-helper": "^2.4",
         "doctrine/dbal": "^2.5",
         "fideloper/proxy": "~3.3",
+        "geoip2/geoip2": "^2.7",
         "gtk/flash-message": "^1.3",
         "jenssegers/agent": "^2.6",
         "laravel/framework": "5.5.*",
@@ -18,6 +19,7 @@
         "maatwebsite/excel": "^2.1",
         "predis/predis": "^1.1",
         "rap2hpoutre/laravel-log-viewer": "^0.11.0",
+        "torann/geoip": "^1.0",
         "yajra/laravel-datatables-oracle": "^8.3"
     },
     "require-dev": {

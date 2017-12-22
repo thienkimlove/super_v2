@@ -12,7 +12,7 @@ use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Jenssegers\Agent\Agent;
-use App\MediaOffer;
+use GeoIp2\Exception\AddressNotFoundException;
 
 class MainController extends Controller
 {
@@ -51,6 +51,8 @@ class MainController extends Controller
             try {
                 $getIp = \GeoIP::getLocation($ipLocation);
                 $isoCode = $getIp['isoCode'];
+            } catch (AddressNotFoundException $e) {
+                return  ($ipLocation == '10.0.2.2');
             } catch (\Exception $e) {
                 \Log::error('check geo ip error='.$e->getMessage());
                 return false;
@@ -211,7 +213,7 @@ class MainController extends Controller
                                     return redirect()->away($redirect_link);
 
                                 } catch (\Exception $e) {
-                                    return response()->json(['message' => 'Error happened when update database!']);
+                                    return response()->json(['message' => $e->getMessage()]);
                                 }
                             } else {
                                 return response()->json(['message' => 'This ip already have click for this offer!']);
