@@ -18,6 +18,17 @@ class Site
     }
 
 
+    public static function userList()
+    {
+        return User::pluck('username', 'id')->all();
+    }
+
+    public static function offerList()
+    {
+        return Offer::where('reject', false)->where('status', true)->pluck('name', 'id')->all();
+    }
+
+
     public static function parseOffer($offer, $network)
     {
         $isIphone = false;
@@ -130,15 +141,15 @@ class Site
 
 
         if (isset($offer['payout'])) {
-            $payout = round(floatval($offer['payout'])/intval(env('RATE_CRON')), 2);
+            $payout = $offer['payout'];
         }
 
         if (isset($offer['rate'])) {
-            $payout = round(floatval(str_replace('$', '', $offer['rate']))/intval(env('RATE_CRON')), 2);
+            $payout = $offer['rate'];
         }
 
         if (isset($offer['Payout'])) {
-            $payout = round(floatval(str_replace('$', '', $offer['Payout']))/intval(env('RATE_CRON')), 2);
+            $payout = $offer['Payout'];
         }
 
         if (isset($offer['name'])) {
@@ -173,15 +184,18 @@ class Site
             $geoLocations = $offer['geo'];
         }
 
+        if ($network->rate_offer > 0) {
+            $payout = round(floatval(str_replace('$', '', $payout))/intval($network->rate_offer), 2);
+        } else {
+            $payout = round(floatval(str_replace('$', '', $payout))/intval(env('RATE_CRON')), 2);
+        }
+
 
         $offerName = iconv(mb_detect_encoding($offerName, mb_detect_order(), true), "UTF-8", $offerName);
 
         $geoLocations = str_replace('|', ',', $geoLocations);
 
-        Offer::updateOrCreate([
-            'net_offer_id' => $netOfferId,
-            'network_id' => $network->id,
-        ],[
+        $updated = [
             'name' => $offerName,
             'redirect_link' => $redirectLink,
             'click_rate' => $payout,
@@ -189,7 +203,21 @@ class Site
             'geo_locations' => $geoLocations,
             'status' => true,
             'auto' => true
-        ]);
+        ];
+
+        if ($network->virtual_click > 0) {
+            $updated['number_when_click'] = $network->virtual_click;
+        }
+
+        if ($network->virtual_lead > 0) {
+            $updated['number_when_lead'] = $network->virtual_lead;
+        }
+
+
+        Offer::updateOrCreate([
+            'net_offer_id' => $netOfferId,
+            'network_id' => $network->id,
+        ],$updated);
 
         return $netOfferId;
     }
@@ -198,19 +226,14 @@ class Site
     public static function feed($network)
     {
 
-        //clear no lead offers.
-        Offer::where('network_id', $network->id)->whereDoesntHave('leads')->delete();
-
-
         $feed_url = $network->cron;
-        // $feed_url = 'http://onetulip.afftrack.com/apiv2/?key=e661cf4c3909b1490ec1ac489349f66c&action=offer_feed';
         $offers = self::getUrlContent($feed_url);
         $listCurrentNetworkOfferIds = [];
 
         $total = 0;
 
         if ($offers) {
-            $rawContent = isset($offers['offers']) ? $offers['offers'] : $rawContent;
+            $rawContent = isset($offers['offers']) ? $offers['offers'] : $offers;
             foreach ($rawContent as $offer) {
                 $listCurrentNetworkOfferIds[] = self::parseOffer($offer, $network);
                 $total ++;
@@ -229,7 +252,7 @@ class Site
                 ->update(['status' => false]);
 
         }
-        return $total;
+        return 'Total Offers Retrieved : '. $total;
     }
 
     public static function download($file_source, $file_target) {

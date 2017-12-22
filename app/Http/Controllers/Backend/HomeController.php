@@ -2,17 +2,14 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Click;
 use App\Group;
 use App\Network;
+use App\NetworkClick;
 use App\Offer;
-use App\Site;
 use App\User;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class HomeController extends AdminController
 {
@@ -40,7 +37,8 @@ class HomeController extends AdminController
         $initQuery = DB::table('network_clicks')
             ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
             ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
-            ->join('users', 'clicks.user_id', '=', 'users.id');
+            ->join('users', 'clicks.user_id', '=', 'users.id')
+            ->where('offers.reject', false);
 
         if ($userId) {
             $initQuery = $initQuery->where('users.id', $userId);
@@ -217,26 +215,13 @@ class HomeController extends AdminController
             ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
             ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
             ->join('users', 'clicks.user_id', '=', 'users.id')
+            ->where('offers.reject', false)
             ->select('offers.name', 'offers.id', 'clicks.created_at as click_at', 'network_clicks.ip as network_ip', 'network_clicks.created_at', 'users.username', 'network_clicks.id as postback_id')
             ->orderBy('network_clicks.id', 'desc')
             ->limit(10)
             ->get();
 
         return view('index', compact('content', 'todayOffers', 'yesterdayOffers', 'weekOffers', 'userRecent', 'userTotals', 'networkTotals', 'siteRecentLead'));
-    }
-
-    public function clearlead(Request $request)
-    {
-        $offer_id = $request->input('offer_id');
-
-        if ($offer = Offer::find($offer_id)) {
-            Click::where('offer_id', $offer_id)->update(['click_ip' => '10.0.2.2']);
-            flash('Clear IP Lead success!');
-            return redirect('admin/offers');
-        } else {
-            flash('No offer found!');
-            return redirect('admin/offers');
-        }
     }
 
     public function ajax($content, Request $request)
@@ -321,6 +306,7 @@ class HomeController extends AdminController
                     ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
                     ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
                     ->join('users', 'clicks.user_id', '=', 'users.id')
+                    ->where('offers.reject', false)
                    // ->where('offers.auto', false)
                     ->whereIn('users.id', $userIds)
                     ->whereBetween('network_clicks.created_at', [$queryStart, $queryEnd]);
@@ -345,6 +331,7 @@ class HomeController extends AdminController
                     ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
                     ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
                     ->join('users', 'clicks.user_id', '=', 'users.id')
+                    ->where('offers.reject', false)
                    // ->where('offers.auto', false)
                     ->whereIn('users.id', $userIds)
                     ->whereBetween('network_clicks.created_at', [$queryStart, $queryEnd]);
@@ -385,6 +372,7 @@ class HomeController extends AdminController
                     ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
                     ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
                     ->join('users', 'clicks.user_id', '=', 'users.id')
+                    ->where('offers.reject', false)
                     //->where('offers.auto', false)
                     ->where('users.id', $userId)
                     ->whereBetween('network_clicks.created_at', [$queryStart, $queryEnd]);
@@ -404,6 +392,7 @@ class HomeController extends AdminController
                     ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
                     ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
                     ->join('users', 'clicks.user_id', '=', 'users.id')
+                    ->where('offers.reject', false)
                     //->where('offers.auto', false)
                     ->where('users.id', $userId)
                     ->whereBetween('network_clicks.created_at', [$queryStart, $queryEnd]);
@@ -438,6 +427,7 @@ class HomeController extends AdminController
                 ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
                 ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
                 ->join('users', 'clicks.user_id', '=', 'users.id')
+                ->where('offers.reject', false)
                 //->where('offers.auto', false)
                 ->where('offers.id', $request->input('content_id'))
                 ->whereBetween('network_clicks.created_at', [$queryStart, $queryEnd]);
@@ -454,6 +444,7 @@ class HomeController extends AdminController
                 ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
                 ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
                 ->join('users', 'clicks.user_id', '=', 'users.id')
+                ->where('offers.reject', false)
                // ->where('offers.auto', false)
                 ->where('offers.id', $request->input('content_id'))
                 ->whereBetween('network_clicks.created_at', [$queryStart, $queryEnd]);
@@ -483,6 +474,7 @@ class HomeController extends AdminController
                     ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
                     ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
                     ->join('users', 'clicks.user_id', '=', 'users.id')
+                    ->where('offers.reject', false)
                    // ->where('offers.auto', false)
                     ->whereBetween('network_clicks.created_at', [$queryStart, $queryEnd]);
 
@@ -507,6 +499,7 @@ class HomeController extends AdminController
                     ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
                     ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
                     ->join('users', 'clicks.user_id', '=', 'users.id')
+                    ->where('offers.reject', false)
                    // ->where('offers.auto', false)
                     ->whereBetween('network_clicks.created_at', [$queryStart, $queryEnd]);
 
@@ -600,99 +593,57 @@ class HomeController extends AdminController
     }
 
 
-    public function cron(Request $request)
+    public function clearOldOffer()
     {
-        set_time_limit(0);
-        if ($request->input('network_id')) {
-            $networks = Network::where('id', $request->input('network_id'))->get();
-        } else {
-            $networks = Network::all();
-        }
+        //clear no lead offers.
 
-        $message = null;
-        foreach ($networks as $network) {
-            if ($network->cron) {
-                $message .= 'Network :' . $network->name . ' have cron='.$network->cron.'"\n"';
-                $message .= Site::feed($network).'"\n"';
-            }
-        }
-        return view('admin.cron', compact('message'));
-    }
+        \DB::beginTransaction();
 
-
-    public function submit($id)
-    {
-
-        $offer = Offer::find($id);
-
-        $offer_locations = trim(strtoupper($offer->geo_locations));
-        if (!$offer_locations || ($offer_locations == 'ALL')) {
-            $offer_locations = 'US';
-        }
-
-        if (strpos($offer_locations, 'GB') !== false) {
-            $offer_locations .= ',UK';
-        }
-
-        if (strpos($offer_locations, 'UK') !== false) {
-            $offer_locations .= ',GB';
-        }
-
-        $country = (strpos($offer_locations, ',') !== false) ? explode(',', $offer_locations)[0] : $offer_locations;
-
-        $country = strtolower($country);
-
-        $url = str_replace('#subId', '', $offer->redirect_link);
-
-
-
-
-        $type = ($offer->allow_devices > 4) ? 0 : 1;
-
-        $userAgent = \DB::connection('lumen')
-            ->table('agents')
-            ->where('type', $type)
-            ->inRandomOrder()
-            ->limit(1)
-            ->get();
-
-        $trueAgent = $userAgent->first()->agent;
-
-        $username = 'lum-customer-theway_holdings-zone-nam-country-' . strtolower($country);
-        $session = mt_rand();
-
-        $background = file_get_contents(resource_path('read.py'));
-        $background = str_replace(['#URL#', '#USERNAME#', '#AGENT#', '#OFFERID#'], [$url, $username.'-session-'.$session, $trueAgent, $offer->id], $background);
-
-        $tempPythonFile = '/tmp/exe_'.$session.'_.py';
-        file_put_contents($tempPythonFile, $background);
-
-        file_put_contents(storage_path('logs/test_link.log'), '========================'."\n", FILE_APPEND);
-        file_put_contents(storage_path('logs/test_link.log'), 'OfferId='.$offer->id.'|Country='.$country.'|Agent='.$trueAgent."\n", FILE_APPEND);
-
-        file_put_contents(storage_path('logs/test_link.log'), '========================'."\n", FILE_APPEND);
+        $now = Carbon::now()->timestamp;
 
         try {
-            $process = new Process('python '.$tempPythonFile, '/tmp', null, null, 120);
-            $process->run();
 
-            // executes after the command finishes
-            if (!$process->isSuccessful()) {
-                unlink($tempPythonFile);
-                throw new ProcessFailedException($process);
-            }
+            \DB::statement("create table temp_offers like offers;");
+            \DB::statement("ALTER TABLE temp_offers CHANGE id id INT(10) UNSIGNED NOT NULL;");
+            \DB::statement("INSERT INTO temp_offers select t1.* FROM offers t1 join network_clicks t2 on t1.id = t2.offer_id GROUP BY t1.id;");
+            \DB::statement("ALTER TABLE temp_offers CHANGE id id INT(10) AUTO_INCREMENT;");
+            \DB::statement("RENAME TABLE offers TO backup_offers_".$now);
+            \DB::statement("RENAME TABLE temp_offers TO offers");
 
-            $offer->test_link = $process->getOutput();
-            $offer->save();
-            unlink($tempPythonFile);
-            $html = $offer->id.'_last.html';
-            $image = $offer->id.'_last.png';
-            copy('/tmp/'.$html, public_path('test/'.$html));
-            copy('/tmp/'.$image, public_path('test/'.$image));
-            return response()->json(['data' => $offer->test_link, 'image' => $image]);
+
+            \DB::commit();
+            flash('success', 'Old Offer not have lead for 1 week clear!');
         } catch (\Exception $e) {
-            return response()->json(['data' => null, 'image' => null, 'error' => $e->getMessage()]);
+            \DB::rollBack();
+            flash('error', $e->getMessage());
         }
+
+        return redirect()->back();
+    }
+
+    public function correctLead()
+    {
+        $oldLeads = NetworkClick::join('clicks', 'network_clicks.sub_id', '=', 'clicks.hash_tag')
+            ->join('offers', 'clicks.offer_id', '=', 'offers.id')
+            ->selectRaw('network_clicks.id as lead_id, network_clicks.network_id as lead_network_id, clicks.id as click_id, offers.id as offer_id, network_clicks.sub_id as lead_sub_id, network_clicks.amount as lead_amount')
+            ->whereNull('network_clicks.offer_id')
+            //->limit(10)
+            ->get();
+
+        foreach ($oldLeads as $oldLead) {
+            NetworkClick::where('id', $oldLead->lead_id)->update([
+                'offer_id' => $oldLead->offer_id,
+                'click_id' => $oldLead->click_id,
+                'json_data' => json_encode(['subid' => $oldLead->lead_sub_id, 'amount' => $oldLead->lead_amount*2, 'network_id' => $oldLead->lead_network_id])
+            ]);
+        }
+
+        $countNull = NetworkClick::whereNull('offer_id')->count();
+
+
+        flash('success', 'Total Leads Not Update ='.$countNull);
+
+        return redirect()->back();
 
     }
 

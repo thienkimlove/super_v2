@@ -12,6 +12,7 @@
 */
 
 Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
+Route::get('notice', 'Backend\AdminController@notice')->name('main.notice');
 
 #Admin Routes
 Route::get('admin/login', 'Backend\AuthController@redirectToGoogle')->name('login');
@@ -21,25 +22,29 @@ Route::get('admin/callback', 'Backend\AuthController@handleGoogleCallback')->nam
 Route::group(['middleware' => 'acl'], function() {
 
     Route::get('admin', 'Backend\HomeController@index')->name('main.index');
-    Route::get('admin/cron', 'Backend\HomeController@cron')->name('home.cron');
-    Route::get('admin/thongke', 'Backend\HomeController@thongke')->name('home.thongke');
-    Route::get('admin/clearlead', 'Backend\HomeController@clearlead')->name('home.clearlead');
-    Route::get('admin/statistic/{content}', 'Backend\HomeController@statistic')->name('home.statistic');
-    Route::get('admin/ajax/{content}', 'Backend\HomeController@ajax')->name('home.ajax');
-
-    Route::get('admin/offertest/{id}', 'Backend\HomeController@submit')->name('home.submit');
+    Route::get('admin/clearOldOffer', 'Backend\HomeController@clearOldOffer')->name('home.clearOldOffer');
+    Route::get('admin/correctLead', 'Backend\HomeController@correctLead')->name('home.correctLead');
 
     Route::get('users.dataTables', ['uses' => 'Backend\UsersController@dataTables', 'as' => 'users.dataTables']);
     Route::resource('admin/users', 'Backend\UsersController');
 
     Route::get('offers.dataTables', ['uses' => 'Backend\OffersController@dataTables', 'as' => 'offers.dataTables']);
+    Route::get('offers.test/{id}', ['uses' => 'Backend\OffersController@test', 'as' => 'offers.test']);
+    Route::get('offers.reject/{id}', ['uses' => 'Backend\OffersController@reject', 'as' => 'offers.reject']);
+    Route::get('offers.accept/{id}', ['uses' => 'Backend\OffersController@accept', 'as' => 'offers.accept']);
+    Route::get('offers.clear/{id}', ['uses' => 'Backend\OffersController@clear', 'as' => 'offers.clear']);
     Route::resource('admin/offers', 'Backend\OffersController');
 
     Route::get('groups.dataTables', ['uses' => 'Backend\GroupsController@dataTables', 'as' => 'groups.dataTables']);
     Route::resource('admin/groups', 'Backend\GroupsController');
 
+    Route::get('network_clicks.dataTables', ['uses' => 'Backend\NetworkClicksController@dataTables', 'as' => 'network_clicks.dataTables']);
+    Route::get('network_clicks/export-to-excel', 'Backend\NetworkClicksController@export')->name('network_clicks.export');
+    Route::resource('admin/network_clicks', 'Backend\NetworkClicksController');
+
 
     Route::get('networks.dataTables', ['uses' => 'Backend\NetworksController@dataTables', 'as' => 'networks.dataTables']);
+    Route::get('networks.cron/{id}', ['uses' => 'Backend\NetworksController@cron', 'as' => 'networks.cron']);
     Route::resource('admin/networks', 'Backend\NetworksController');
 
 });

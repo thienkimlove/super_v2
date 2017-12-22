@@ -1,78 +1,52 @@
 <?php namespace App\Http\Controllers\Backend;
 
 use App\Group;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\GroupRequest;
+use Illuminate\Http\Request;
 
-class GroupsController extends AdminController
+
+class GroupsController extends Controller
 {
 
     public function index()
     {
-
-        $groups = Group::latest('updated_at')->paginate(10);
-
-        return view('admin.group.index', compact('groups'));
+        return view('groups.index');
     }
 
     public function create()
     {
-        return view('admin.group.form');
+        return view('groups.create');
     }
 
     public function store(GroupRequest $request)
     {
+        $request->store();
 
-        try {
+        flash()->success('Success!', 'Group successfully created.');
 
-            Group::create([
-                'name' => $request->input('name')
-            ]);
-
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors([
-                $e->getMessage()
-            ]);
-        }
-
-        flash('Create group success!', 'success');
-        return redirect('admin/groups');
+        return redirect()->route('groups.index');
     }
-
 
     public function edit($id)
     {
         $group = Group::find($id);
-        return view('admin.group.form', compact('group'));
+
+        return view('groups.edit', compact('group'));
     }
 
-
-    public function update($id, GroupRequest $request)
+    public function update(GroupRequest $request, $id)
     {
-        $group = Group::find($id);
+        $request->save($id);
 
+        flash()->success('Thành công', 'Cập nhật thành công!');
 
-        $data = [
-            'name' => $request->input('name')
-        ];
-
-        try {
-            $group->update($data);
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors([
-                $e->getMessage()
-            ]);
-        }
-
-        flash('Update group success!', 'success');
-        return redirect('admin/groups');
+        return redirect()->route('groups.edit', $id);
     }
 
-
-    public function destroy($id)
+    public function dataTables(Request $request)
     {
-        Group::find($id)->delete();
-        flash('Success deleted group!');
-        return redirect('admin/groups');
+        return Group::getDataTables($request);
     }
 
 }

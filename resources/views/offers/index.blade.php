@@ -29,9 +29,11 @@
 @section('content')
     <div class="row">
         <div class="col-sm-12">
+            @if (auth('backend')->user()->isAdmin())
             <div class="btn-group pull-right m-t-15">
-                <a href="/admin/users/create"><button type="button" class="btn btn-default dropdown-toggle waves-effect" >Tạo mới <span class="m-l-5"><i class="fa fa-plus"></i></span></button></a>
+                <a href="/admin/offers/create"><button type="button" class="btn btn-default dropdown-toggle waves-effect" >Tạo mới <span class="m-l-5"><i class="fa fa-plus"></i></span></button></a>
             </div>
+            @endif
 
             <h4 class="page-title">Danh sách Offer</h4>
 
@@ -84,6 +86,13 @@
 
 
                                 <div class="form-group m-l-10">
+                                    <label class="sr-only" for="">Rejected</label>
+                                    {!! Form::select('reject', [0 => 'Not Rejected', 1 => 'Rejected'], null, ['class' => 'form-control']) !!}
+                                </div>
+
+
+
+                                <div class="form-group m-l-10">
                                     <label class="sr-only" for="">Status</label>
                                     {!! Form::select('status', [1 => 'Active', 0 => 'Inactive'], null, ['class' => 'form-control']) !!}
                                 </div>
@@ -104,34 +113,34 @@
         <div class="col-sm-12">
             <div class="card-box table-responsive">
                 <p class="text-muted font-13 m-b-30"></p>
-                <table id="dataTables-offers" class="table table-striped table-bordered table-actions-bar">
+
+                    <table id="dataTables-offers" class="table table-striped table-bordered table-actions-bar">
                     <thead>
                     <tr>
+                        <th width="20%">Name</th>
+                        <th width="5%">Price Per Click</th>
+                        <th width="5%">Geo Locations</th>
+                        <th width="10%">Allow Devices</th>
+                        <th width="10%">Link To Lead</th>
+                        <th width="5%">Status</th>
+                        <th width="5%">Created Date</th>
+
                         @if (auth('backend')->user()->isAdmin())
-                            <th>Network OfferID</th>
+
+                            <th width="10%">Network OfferID</th>
+                            <th width="10%">Network</th>
+                            <th width="10%">Action</th>
+                            <th width="20%">Test Msg</th>
                         @endif
-                        <th>Name</th>
-                        <th>Price Per Click</th>
-                        <th>Geo Locations</th>
-                        <th>Allow Devices</th>
-                        <th>Link To Lead</th>
-                        <th>Status</th>
-                        <th>Created Date</th>
-                        @if (auth('backend')->user()->isAdmin())
-                            <th>True Link</th>
-                            <th>Allow Multi Lead</th>
-                            <th>Check Click In Network</th>
-                            <th>Virtual Clicks</th>
-                            <th>Network</th>
-                            <th>Action</th>
-                        @endif
-                        <th></th>
                     </tr>
                     </thead>
                 </table>
+
             </div>
         </div>
     </div>
+
+
 
 @endsection
 
@@ -181,10 +190,10 @@
                         d.network_id = $('select[name=network_id]').val();
                         d.auto = $('select[name=auto]').val();
                         d.status = $('select[name=status]').val();
+                        d.reject = $('select[name=reject]').val();
                     }
                 },
                 columns: [
-                    {data: 'net_offer_id', name: 'net_offer_id'},
                     {data: 'name', name: 'name'},
                     {data: 'click_rate', name: 'click_rate'},
                     {data: 'geo_locations', name: 'geo_locations'},
@@ -193,14 +202,18 @@
                     {data: 'status', name: 'status'},
                     {data: 'created_at', name: 'created_at'},
 
-                    {data: 'redirect_link', name: 'redirect_link'},
+                    @if (auth('backend')->user()->isAdmin())
+
+                    {data: 'net_offer_id', name: 'net_offer_id'},
+                  /*  {data: 'redirect_link', name: 'redirect_link'},
                     {data: 'allow_multi_lead', name: 'allow_multi_lead'},
                     {data: 'check_click_in_network', name: 'check_click_in_network'},
-                    {data: 'number_when_click', name: 'number_when_click'},
-                    {data: 'number_when_lead', name: 'number_when_lead'},
+                    {data: 'virtual_click', name: 'virtual_click'},*/
                     {data: 'network_name', name: 'network_name'},
 
-                    {data: 'action', name: 'action', orderable: false, searchable: false}
+                    {data: 'action', name: 'action', orderable: false, searchable: false},
+                    {data: 'process', name: 'process'}
+                    @endif
                 ],
                 order: [[5, 'desc']]
             });
@@ -209,6 +222,90 @@
                 datatable.draw();
                 e.preventDefault();
             });
+
+
+            datatable.on('click', '[id^="btn-reject-"]', function (e) {
+                e.preventDefault();
+
+                var url = $(this).data('url');
+
+                swal({
+                    title: "Bạn có muốn reject offer nay?",
+                    text: "",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Reject!"
+                }).then(function () {
+                    $.ajax({
+                        url : url,
+                        type : 'GET',
+                        beforeSend: function (xhr) {
+                            var token = $('meta[name="csrf_token"]').attr('content');
+                            if (token) {
+                                return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+                            }
+                        }
+                    }).always(function (data) {
+                        window.location.reload();
+                    });
+                });
+            });
+
+            datatable.on('click', '[id^="btn-accept-"]', function (e) {
+                e.preventDefault();
+
+                var url = $(this).data('url');
+
+                swal({
+                    title: "Bạn có muốn accept offer nay?",
+                    text: "",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Accept!"
+                }).then(function () {
+                    $.ajax({
+                        url : url,
+                        type : 'GET',
+                        beforeSend: function (xhr) {
+                            var token = $('meta[name="csrf_token"]').attr('content');
+                            if (token) {
+                                return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+                            }
+                        }
+                    }).always(function (data) {
+                        window.location.reload();
+                    });
+                });
+            });
+
+            datatable.on('click', '[id^="btn-test-"]', function (e) {
+                e.preventDefault();
+
+                var url = $(this).data('url');
+
+                var offer_id = $(this).data('offer');
+
+                $('div#test_status_' + offer_id).html('<img width="50" align="center" height="auto" src="/image/loading.gif" />');
+
+                $.ajax({
+                    url : url,
+                    type : 'GET',
+                    beforeSend: function (xhr) {
+                        var token = $('meta[name="csrf_token"]').attr('content');
+                        if (token) {
+                            return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+                        }
+                    }
+                }).always(function (res) {
+                    if (res.status === true) {
+                        $('div#test_status_' + offer_id).html('<span>' + res.msg + '</span><br/><span><img src="/test/' + offer_id + '_last.png" width="auto" height="100" /></span><br/><span><a target="_blank" href="/test/' + offer_id + '_last.html">Debug Html</a></span>');
+                    } else {
+                        $('div#test_status_' + offer_id).html(res.msg);
+                    }
+                });
+            });
         });
 
         $.ajaxSetup({
@@ -216,5 +313,8 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
+
     </script>
+
+
 @endsection

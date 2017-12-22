@@ -1,93 +1,73 @@
 <?php namespace App\Http\Controllers\Backend;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\NetworkRequest;
 use App\Network;
-use App\Offer;
+use App\Site;
+use Illuminate\Http\Request;
 
-class NetworksController extends AdminController
+
+class NetworksController extends Controller
 {
 
-    public function index()
+    public function cron($id)
     {
+        set_time_limit(0);
 
-        $networks = Network::latest('updated_at')->paginate(10);
+        $network = Network::find($id);
 
-        $noLeadOffers = [];
-
-        foreach ($networks as $network) {
-            $count = Offer::where('network_id', $network->id)->whereDoesntHave('leads')->count();
-            $noLeadOffers[$network->id] = $count;
+        try {
+            if ($network->cron) {
+                $message = Site::feed($network);
+                flash()->success('Success!', $message);
+                return redirect()->route('networks.index');
+            }
+        } catch (\Exception $e) {
+            flash()->error('Error!', $e->getMessage());
+            return redirect()->route('networks.index');
         }
 
 
-        return view('admin.network.index', compact('networks', 'noLeadOffers'));
+    }
+
+    public function index()
+    {
+        return view('networks.index');
     }
 
     public function create()
     {
-        return view('admin.network.form');
+        return view('networks.create');
     }
 
     public function store(NetworkRequest $request)
     {
+        $request->store();
 
-        try {
+        flash()->success('Success!', 'Network successfully created.');
 
-            Network::create([
-                'name' => $request->input('name'),
-                'type' => $request->input('type'),
-                'api_url' => $request->input('api_url'),
-                'cron' => $request->input('cron'),
-            ]);
-
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors([
-                $e->getMessage()
-            ]);
-        }
-
-        flash('Create network success!', 'success');
-        return redirect('admin/networks');
+        return redirect()->route('networks.index');
     }
-
 
     public function edit($id)
     {
         $network = Network::find($id);
-        return view('admin.network.form', compact('network'));
+
+        return view('networks.edit', compact('network'));
     }
 
-
-    public function update($id, NetworkRequest $request)
+    public function update(NetworkRequest $request, $id)
     {
-        $network = Network::find($id);
+        $request->save($id);
 
+        flash()->success('Thành công', 'Cập nhật thành công!');
 
-        $data = [
-            'name' => $request->input('name'),
-            'type' => $request->input('type'),
-            'api_url' => $request->input('api_url'),
-            'cron' => $request->input('cron')
-        ];
-
-        try {
-            $network->update($data);
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors([
-                $e->getMessage()
-            ]);
-        }
-
-        flash('Update network success!', 'success');
-        return redirect('admin/networks');
+        return redirect()->route('networks.edit', $id);
     }
 
-
-    public function destroy($id)
+    public function dataTables(Request $request)
     {
-        Network::find($id)->delete();
-        flash('Success deleted network!');
-        return redirect('admin/networks');
+        return Network::getDataTables($request);
     }
 
 }

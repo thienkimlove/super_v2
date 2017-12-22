@@ -3,13 +3,48 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Yajra\DataTables\Facades\DataTables;
 
 class Network extends Model
 {
-    protected $fillable = ['name', 'type', 'api_url', 'cron'];
+    protected $fillable = [
+        'name',
+        'cron',
+        'rate_offer',
+        'virtual_click',
+        'virtual_lead'
+    ];
 
     public function offers()
     {
         return $this->hasMany(Offer::class);
+    }
+
+    public static function getDataTables($request)
+    {
+        $network = static::select('*')->latest('created_at');
+
+        return DataTables::of($network)
+            ->filter(function ($query) use ($request) {
+                if ($request->filled('name')) {
+                    $query->where('name', 'like', '%' . $request->get('name') . '%');
+                }
+            })
+            ->addColumn('action', function ($network) {
+                $response_html = '<a class="table-action-btn" title="Chỉnh sửa network" href="' . route('networks.edit', $network->id) . '"><i class="fa fa-pencil text-success"></i></a>';
+
+                if ($network->cron) {
+                    $response_html .= '<a class="table-action-btn" title="Run Cron" href="' . route('networks.cron', $network->id) . '"><i class="fa fa-tasks text-success"></i></a>';
+                }
+
+                return $response_html;
+
+            })
+            ->addColumn('not_lead_count', function ($network) {
+                return Offer::where('network_id', $network->id)->whereDoesntHave('leads')->count();
+
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
 }

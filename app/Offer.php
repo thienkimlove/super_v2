@@ -22,7 +22,8 @@ class Offer extends Model
         'check_click_in_network',
         'number_when_click',
         'number_when_lead',
-        'test_link'
+        'test_link',
+        'reject',
     ];
 
     public $dates = ['created_at', 'updated_at'];
@@ -70,6 +71,10 @@ class Offer extends Model
                     $query->where('status', $request->get('status'));
                 }
 
+                if ($request->filled('reject')) {
+                    $query->where('reject', $request->get('reject'));
+                }
+
                 if ($request->filled('country')) {
                     $query->where('geo_locations', 'like', '%' . $request->get('country') . '%');
                 }
@@ -94,10 +99,13 @@ class Offer extends Model
             ->editColumn('allow_multi_lead', function ($offer) {
                 return $offer->allow_multi_lead ? '<i class="ion ion-checkmark-circled text-success"></i>' : '<i class="ion ion-close-circled text-danger"></i>';
             })
+            ->editColumn('geo_locations', function ($offer) {
+                return str_limit($offer->geo_locations, 40);
+            })
             ->editColumn('status', function ($offer) {
                 return $offer->status ? '<i class="ion ion-checkmark-circled text-success"></i>' : '<i class="ion ion-close-circled text-danger"></i>';
             })
-            ->editColumn('geo_locations', function ($offer) {
+            ->editColumn('allow_devices', function ($offer) {
                 return config('devices')[$offer->allow_devices];
             })
             ->addColumn('redirect_link_for_user', function ($offer) {
@@ -106,11 +114,25 @@ class Offer extends Model
             ->addColumn('network_name', function ($offer) {
                 return $offer->network ? $offer->network->name : '';
             })
-            ->addColumn('action', function ($offer) {
-                return '<a class="table-action-btn" title="Chỉnh sửa offer" href="' . route('offers.edit', $offer->id) . '"><i class="fa fa-pencil text-success"></i></a>';
-
+            ->addColumn('virtual_click', function ($offer) {
+                return ' <span>Number clicks when have click:</span>'.$offer->number_when_click.' <br/>
+                                            <span>Number clicks when have lead:</span> '.$offer->number_when_lead.' <br/>';
             })
-            ->rawColumns(['network_name', 'status', 'action', 'name', 'geo_locations', 'redirect_link_for_user', 'check_click_in_network', 'allow_multi_lead'])
+            ->addColumn('action', function ($offer) {
+                $response = '<a class="table-action-btn" title="Chỉnh sửa offer" href="' . route('offers.edit', $offer->id) . '"><i class="fa fa-pencil text-success"></i></a>  <a class="table-action-btn" data-offer="'.$offer->id.'" id="btn-test-' . $offer->id . '" title="Test Offer" data-url="' . route('offers.test', $offer->id) . '" href="javascript:;"><i class="fa fa-terminal text-warning"></i></a> <a class="table-action-btn" title="Clear Click IP" href="' . route('offers.clear', $offer->id) . '"><i class="fa fa-commenting text-warning"></i></a>';
+
+                if ($offer->reject) {
+                    $response .= '<a class="table-action-btn" data-url="' . route('offers.accept', $offer->id) . '" id="btn-accept-' . $offer->id . '"  title="Accept Offer" href="javascript:;"><i class="fa fa-unlock text-danger"></i></a>';
+                } else {
+                    $response .= '<a class="table-action-btn" data-url="' . route('offers.reject', $offer->id) . '" id="btn-reject-' . $offer->id . '"  title="Reject Offer" href="javascript:;"><i class="fa fa-lock text-danger"></i></a>';
+                }
+
+                return $response;
+
+            })->addColumn('process', function ($offer) {
+                return '<div id="test_status_'.$offer->id.'">'.$offer->test_link.'</div>';
+            })
+            ->rawColumns(['network_name', 'status', 'action', 'name', 'allow_devices', 'redirect_link_for_user', 'check_click_in_network', 'allow_multi_lead', 'virtual_click', 'process'])
             ->make(true);
     }
 
