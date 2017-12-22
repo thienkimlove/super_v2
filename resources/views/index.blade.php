@@ -340,30 +340,7 @@
     @endif
 
     <div class="row" id="site-recent-lead">
-        <div class="col-lg-12">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <i class="fa fa-bell fa-fw"></i>Site Recent Lead
-                </div>
-                <!-- /.panel-heading -->
-                <div class="panel-body">
-                    <div class="list-group">
-                        @foreach ($siteRecentLead as $recent)
-                            <a class="list-group-item" href="#">
-                                <b>{{$recent->username}} </b> lead offer <b>{{$recent->name}}</b> with IP <b>{{$recent->network_ip}}</b> - ID=<b>{{$recent->id}} | Time Click: {{$recent->click_at}} || postbackId= {{$recent->postback_id}}</b>
-                                <span class="pull-right text-muted small">
-                            <em>{{$recent->created_at}}</em>
-                         </span>
-                            </a>
-                        @endforeach
-                    </div>
-                    <!-- /.list-group -->
-                    <a class="btn btn-default btn-block" href="{{url('admin/offers')}}">View All Offers</a>
-                </div>
-                <!-- /.panel-body -->
-            </div>
-            <!-- /.panel -->
-        </div>
+
     </div>
 
     <!-- End row -->
@@ -376,5 +353,21 @@
     <script type="text/javascript" src="/vendor/ubold/assets/plugins/d3/d3.min.js"></script>
     <script type="text/javascript" src="/vendor/ubold/assets/plugins/c3/c3.min.js"></script>
     {{--<script src="/vendor/ubold/assets/pages/jquery.c3-chart.init.js"></script>--}}
+
+    <script>
+        $(document).ready(function(){
+            setInterval(function(){
+                $('#site-recent-lead').html('<img width="200" align="center" height="auto" src="/image/loading.gif" />');
+                $.getJSON('/admin/recentLead', function(response){
+                    $('#site-recent-lead').html(response.html);
+                });
+            }, 3000);
+        });
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    </script>
 
 @endsection

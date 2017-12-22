@@ -211,17 +211,7 @@ class HomeController extends AdminController
     {
         list($content, $userRecent, $todayOffers, $yesterdayOffers, $weekOffers, $userTotals, $networkTotals) = $this->generateDashboard();
 
-        $siteRecentLead = DB::table('network_clicks')
-            ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
-            ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
-            ->join('users', 'clicks.user_id', '=', 'users.id')
-            ->where('offers.reject', false)
-            ->select('offers.name', 'offers.id', 'clicks.created_at as click_at', 'network_clicks.ip as network_ip', 'network_clicks.created_at', 'users.username', 'network_clicks.id as postback_id')
-            ->orderBy('network_clicks.id', 'desc')
-            ->limit(10)
-            ->get();
-
-        return view('index', compact('content', 'todayOffers', 'yesterdayOffers', 'weekOffers', 'userRecent', 'userTotals', 'networkTotals', 'siteRecentLead'));
+        return view('index', compact('content', 'todayOffers', 'yesterdayOffers', 'weekOffers', 'userRecent', 'userTotals', 'networkTotals'));
     }
 
     public function ajax($content, Request $request)
@@ -655,6 +645,23 @@ class HomeController extends AdminController
         flash('success', 'Clear old Virtual Logs!');
 
         return redirect()->back();
+
+    }
+
+    public function recentLead()
+    {
+
+        $siteRecentLead = DB::table('network_clicks')
+            ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
+            ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
+            ->join('users', 'clicks.user_id', '=', 'users.id')
+            ->where('offers.reject', false)
+            ->select('offers.name', 'offers.id', 'clicks.created_at as click_at', 'network_clicks.ip as network_ip', 'network_clicks.created_at', 'users.username', 'network_clicks.id as postback_id')
+            ->orderBy('network_clicks.id', 'desc')
+            ->limit(10)
+            ->get();
+
+        return response()->json(['html' => view('recent', compact('siteRecentLead'))->render()]);
 
     }
 

@@ -22,6 +22,7 @@ Route::get('admin/callback', 'Backend\AuthController@handleGoogleCallback')->nam
 Route::group(['middleware' => 'acl'], function() {
 
     Route::get('admin', 'Backend\HomeController@index')->name('main.index');
+    Route::get('admin/recentLead', 'Backend\HomeController@recentLead')->name('home.recentLead');
     Route::get('admin/clearOldOffer', 'Backend\HomeController@clearOldOffer')->name('home.clearOldOffer');
     Route::get('admin/correctLead', 'Backend\HomeController@correctLead')->name('home.correctLead');
     Route::get('admin/clearFinishLog', 'Backend\HomeController@clearFinishLog')->name('home.clearFinishLog');
