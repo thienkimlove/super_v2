@@ -25,7 +25,15 @@ class Site
 
     public static function offerList()
     {
-        return Offer::where('reject', false)->where('status', true)->pluck('name', 'id')->all();
+        $offers = Offer::where('reject', false)->where('status', true)->get();
+
+        $response = [];
+
+        foreach ($offers as $offer) {
+            $response[$offer->id] = $offer->id.' - '.$offer->name;
+        }
+
+        return $response;
     }
 
 

@@ -17,6 +17,17 @@ use GeoIp2\Exception\AddressNotFoundException;
 class MainController extends Controller
 {
 
+    private function curlProcess($url)
+    {
+        $curl_handle=curl_init();
+        curl_setopt($curl_handle, CURLOPT_URL,$url);
+        curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 20);
+        curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+        $query = curl_exec($curl_handle);
+        curl_close($curl_handle);
+        return $query;
+    }
+
     //return array ip and isoCode if have.
     //https://github.com/Torann/laravel-geoip
 
@@ -43,7 +54,8 @@ class MainController extends Controller
         $ipLocation = $request->ip();
 
         try {
-            $ipInformation = file_get_contents('http://freegeoip.net/json/'.$ipLocation);
+           // $ipInformation = file_get_contents('http://freegeoip.net/json/'.$ipLocation);
+            $ipInformation = $this->curlProcess('http://freegeoip.net/json/'.$ipLocation);
             $address = json_decode($ipInformation, true);
             $isoCode = $address['country_code'];
         } catch (\Exception $e) {
