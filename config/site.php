@@ -10,4 +10,8 @@ return [
         'richxyz',
         'richnet',
     ],
+
+    '2nd_list' => [
+        'affapk',
+    ],
 ];
