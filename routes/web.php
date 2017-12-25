@@ -23,9 +23,9 @@ Route::group(['middleware' => 'acl'], function() {
 
     Route::get('admin', 'Backend\HomeController@index')->name('main.index');
     Route::get('admin/recentLead', 'Backend\HomeController@recentLead')->name('home.recentLead');
-    Route::get('admin/clearOldOffer', 'Backend\HomeController@clearOldOffer')->name('home.clearOldOffer');
+   // Route::get('admin/clearOldOffer', 'Backend\HomeController@clearOldOffer')->name('home.clearOldOffer');
     Route::get('admin/correctLead', 'Backend\HomeController@correctLead')->name('home.correctLead');
-    Route::get('admin/clearFinishLog', 'Backend\HomeController@clearFinishLog')->name('home.clearFinishLog');
+   // Route::get('admin/clearFinishLog', 'Backend\HomeController@clearFinishLog')->name('home.clearFinishLog');
 
     Route::get('users.dataTables', ['uses' => 'Backend\UsersController@dataTables', 'as' => 'users.dataTables']);
     Route::resource('admin/users', 'Backend\UsersController');

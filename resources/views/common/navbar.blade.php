@@ -35,7 +35,7 @@
 
                            {{-- <li><a href="{{ url('/admin/clearOldOffer')}}">Clear Old Offer Not have Lead</a></li>--}}
                             <li><a href="{{ url('/admin/correctLead')}}">Correct Leads (Quan only)</a></li>
-                            <li><a href="{{ url('/admin/clearFinishLog')}}">Clear Virtual Logs (Quan only)</a></li>
+                          {{--  <li><a href="{{ url('/admin/clearFinishLog')}}">Clear Virtual Logs (Quan only)</a></li>--}}
                         </ul>
                     </li>
 

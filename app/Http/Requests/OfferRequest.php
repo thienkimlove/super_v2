@@ -69,7 +69,7 @@ class OfferRequest extends FormRequest
     {
         if (!$this->filled('status')) {
             $this->merge([
-                'status' => true,
+                'status' => false,
             ]);
         }
 
@@ -81,13 +81,13 @@ class OfferRequest extends FormRequest
 
         if (!$this->filled('allow_multi_lead')) {
             $this->merge([
-                'allow_multi_lead' => true,
+                'allow_multi_lead' => false,
             ]);
         }
 
         if (!$this->filled('check_click_in_network')) {
             $this->merge([
-                'check_click_in_network' => true,
+                'check_click_in_network' => false,
             ]);
         }
 
@@ -116,7 +116,7 @@ class OfferRequest extends FormRequest
 
         if (!$this->filled('status')) {
             $this->merge([
-                'status' => true,
+                'status' => false,
             ]);
         }
 
@@ -128,13 +128,13 @@ class OfferRequest extends FormRequest
 
         if (!$this->filled('allow_multi_lead')) {
             $this->merge([
-                'allow_multi_lead' => true,
+                'allow_multi_lead' => false,
             ]);
         }
 
         if (!$this->filled('check_click_in_network')) {
             $this->merge([
-                'check_click_in_network' => true,
+                'check_click_in_network' => false,
             ]);
         }
 
