@@ -159,6 +159,23 @@ return [
         ],
 
 
+        'affapk' => [
+            'driver' => 'mysql',
+            'host' => 'localhost',
+            'port' => '3306',
+            'database' => 'affapk',
+            'username' => 'root',
+            'password' => 'tieungao',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+            'unix_socket' => '/var/run/mysqld/mysqld.sock'
+        ],
+
+
+
 
 
         'mysql' => [
