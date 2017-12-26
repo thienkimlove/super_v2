@@ -71,7 +71,7 @@ class MainController extends Controller
             }
         }
 
-        if (strpos($offer_locations, $isoCode) !== false) {
+        if ($isoCode && strpos($offer_locations, $isoCode) !== false) {
             return $isoCode;
         } else {
            // \Log::info('OfferId='.$offer->id." have location=".$offer_locations." but IP=".$ipLocation);
@@ -229,7 +229,7 @@ class MainController extends Controller
                                     return response()->json(['message' => $e->getMessage()]);
                                 }
                             } else {
-                                return response()->json(['message' => 'This ip already have click for this offer!']);
+                                return response()->json(['message' => 'IP='.$currentIp.' already have click for offerId='.$offer_id]);
                             }
                         } else {
                             return  response()->json(['message' => 'Not allow Geo Locations!']);
