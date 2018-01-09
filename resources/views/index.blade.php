@@ -43,7 +43,7 @@
                             <i class="fa fa-tasks fa-5x"></i>
                         </div>
                         <div class="col-xs-9 text-right">
-                            <div class="huge">{{$content['month']}}</div>
+                            <div class="huge">{{ round($content['month'], 2) }}</div>
                             <div>Money This Month</div>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                             <i class="fa fa-shopping-cart fa-5x"></i>
                         </div>
                         <div class="col-xs-9 text-right">
-                            <div class="huge">{{$content['total']}}</div>
+                            <div class="huge">{{ round($content['total'], 2) }}</div>
                             <div>Total</div>
                         </div>
                     </div>
@@ -123,7 +123,7 @@
                             @foreach ($networkTotals as $networkTotal)
                                 <tr>
                                     <td>{{$networkTotal['name']}}</td>
-                                    <td>{{$networkTotal['total']}}</td>
+                                    <td>{{ round($networkTotal['total'], 2) }}</td>
                                 </tr>
                             @endforeach
                             </tbody>

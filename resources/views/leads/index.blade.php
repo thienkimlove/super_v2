@@ -121,6 +121,7 @@
                     <table id="dataTables-leads" class="table table-striped table-bordered table-actions-bar">
                     <thead>
                     <tr>
+                        <th>OfferID</th>
                         <th>OfferName</th>
                         <th>ClickRate</th>
                         <th>IP</th>
@@ -195,6 +196,7 @@
                     }
                 },
                 columns: [
+                    {data: 'id', name: 'id'},
                     {data: 'offer_name', name: 'offer_name'},
                     {data: 'offer_click_rate', name: 'offer_click_rate'},
                     {data: 'ip', name: 'ip'},

@@ -36,6 +36,50 @@ class Site
         return $response;
     }
 
+    public static function getCountryCodeFromString($str)
+    {
+
+        $str = str_replace(',', '  ', $str);
+        $str = str_replace('-', '  ', $str);
+        $str .= '  ';
+
+        $re = '/\s([A-Z]{2})\s/';
+        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+
+        $country_codes = array_keys(config('country'));
+
+        $response = [];
+
+        foreach ($matches as $ar) {
+            if (is_array($ar)) {
+                foreach ($ar as $ar2) {
+                    if (is_array($ar2)) {
+                        foreach ($ar2 as $ar3) {
+                            if (in_array(trim($ar3), $country_codes)) {
+                                $response[] = trim($ar3);
+                            }
+                        }
+                    } else {
+                        if (in_array(trim($ar2), $country_codes)) {
+                            $response[] = trim($ar2);
+                        }
+                    }
+                }
+            } else {
+                if (in_array(trim($ar), $country_codes)) {
+                    $response[] = trim($ar);
+                }
+            }
+        }
+
+        if ($response) {
+            return array_unique($response);
+        } else {
+           return null;
+        }
+
+    }
+
 
     public static function parseOffer($offer, $network)
     {
@@ -55,6 +99,9 @@ class Site
 
         #style 1
 
+
+
+
         if (isset($offer['devices'])) {
             $devices = $offer['devices'];
         }
@@ -65,6 +112,10 @@ class Site
 
         if (isset($offer['platform'])) {
             $devices = explode(',', $offer['platform']);
+        }
+
+        if (!$devices && isset($offer['name'])) {
+            $devices = explode(' ', $offer['name']);
         }
 
         foreach ($devices as $device) {
@@ -152,6 +203,10 @@ class Site
             $payout = $offer['payout'];
         }
 
+        if (isset($offer['default_payout'])) {
+            $payout = $offer['default_payout'];
+        }
+
         if (isset($offer['rate'])) {
             $payout = $offer['rate'];
         }
@@ -192,6 +247,10 @@ class Site
             $geoLocations = $offer['geo'];
         }
 
+        if (!$geoLocations && isset($offer['name'])) {
+            $geoLocations =  implode(',', self::getCountryCodeFromString($offer['name']));
+        }
+
         if ($network->rate_offer > 0) {
             $payout = round(floatval(str_replace('$', '', $payout))/intval($network->rate_offer), 2);
         } else {
@@ -203,31 +262,49 @@ class Site
 
         $geoLocations = str_replace('|', ',', $geoLocations);
 
-        $updated = [
-            'name' => $offerName,
-            'redirect_link' => $redirectLink,
-            'click_rate' => $payout,
-            'allow_devices' => $realDevice,
-            'geo_locations' => $geoLocations,
-            'status' => true,
-            'auto' => true
-        ];
 
-        if ($network->virtual_click > 0) {
-            $updated['number_when_click'] = $network->virtual_click;
+        if (!$redirectLink) {
+            $getLinkUrl = 'https://adwool.api.hasoffers.com/Apiv3/json?api_key=af74bc02809fe0089e860b387d2f8a20735529b744cbcabc750b7564c804bb1a&Target=Affiliate_Offer&Method=generateTrackingLink&offer_id='.$netOfferId;
+
+            $responseLinkJson = self::getUrlContent($getLinkUrl);
+
+            if (isset($responseLinkJson['response']['data']['click_url'])) {
+                $redirectLink = $responseLinkJson['response']['data']['click_url'].'&aff_sub=#subId';
+            }
         }
 
-        if ($network->virtual_lead > 0) {
-            $updated['number_when_lead'] = $network->virtual_lead;
+        if ($redirectLink && $payout && $offerName && $realDevice && $geoLocations) {
+            $updated = [
+                'name' => $offerName,
+                'redirect_link' => $redirectLink,
+                'click_rate' => $payout,
+                'allow_devices' => $realDevice,
+                'geo_locations' => $geoLocations,
+                'status' => true,
+                'auto' => true
+            ];
+
+            if ($network->virtual_click > 0) {
+                $updated['number_when_click'] = $network->virtual_click;
+            }
+
+            if ($network->virtual_lead > 0) {
+                $updated['number_when_lead'] = $network->virtual_lead;
+            }
+
+
+            Offer::updateOrCreate([
+                'net_offer_id' => $netOfferId,
+                'network_id' => $network->id,
+            ],$updated);
+
+            return $netOfferId;
+        } else {
+            \Log::info($offerName.' '.$netOfferId);
         }
 
+        return null;
 
-        Offer::updateOrCreate([
-            'net_offer_id' => $netOfferId,
-            'network_id' => $network->id,
-        ],$updated);
-
-        return $netOfferId;
     }
 
 
@@ -241,9 +318,22 @@ class Site
         $total = 0;
 
         if ($offers) {
-            $rawContent = isset($offers['offers']) ? $offers['offers'] : $offers;
+
+            if (isset($offers['offers'])) {
+                $rawContent = $offers['offers'];
+            } elseif (isset($offers['response']['data'])) {
+                $rawContent = $offers['response']['data'];
+            } else {
+                $rawContent = $offers;
+            }
+
+
             foreach ($rawContent as $offer) {
-                $listCurrentNetworkOfferIds[] = self::parseOffer($offer, $network);
+                $parseData = isset($offer['Offer']) ? $offer['Offer'] : $offer;
+                $parseResult = self::parseOffer($parseData, $network);
+                if ($parseResult) {
+                    $listCurrentNetworkOfferIds[] = self::parseOffer($parseData, $network);
+                }
                 $total ++;
             }
         }
