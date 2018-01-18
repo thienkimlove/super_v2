@@ -247,7 +247,7 @@
                             }
                         }
                     }).always(function (data) {
-                        window.location.reload();
+                        datatable.draw();
                     });
                 });
             });
@@ -275,7 +275,7 @@
                             }
                         }
                     }).always(function (data) {
-                        window.location.reload();
+                        datatable.draw();
                     });
                 });
             });
