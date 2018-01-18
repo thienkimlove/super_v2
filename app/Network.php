@@ -43,8 +43,17 @@ class Network extends Model
             ->addColumn('not_lead_count', function ($network) {
                 return Offer::where('network_id', $network->id)->whereDoesntHave('leads')->count();
 
+            }) ->editColumn('cron', function ($network) {
+                return str_limit($network->cron, 30);
+
+            }) ->addColumn('postback_link', function ($network) {
+                return url('postback?network_id='.$network->id.'&subid={require_subId}&status={optional_status}&amount={optional_amount}');
+
+            })->addColumn('haspostback_link', function ($network) {
+                return url('hashpostback?network_id='.$network->id.'&subid={require_subId}');
+
             })
-            ->rawColumns(['action'])
+            ->rawColumns(['action', 'postback_link', 'haspostback_link'])
             ->make(true);
     }
 }

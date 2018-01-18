@@ -21,7 +21,7 @@ class MainController extends Controller
     {
         $curl_handle=curl_init();
         curl_setopt($curl_handle, CURLOPT_URL,$url);
-        curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 20);
+        curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 120);
         curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
         $query = curl_exec($curl_handle);
         curl_close($curl_handle);
@@ -157,8 +157,17 @@ class MainController extends Controller
     }
     public function camp(Request $request)
     {
-        $offer_id = (int) $request->input('offer_id');
-        $user_id = (int) $request->input('user_id');
+        $offer_id = null;
+        $user_id = null;
+        if ($request->filled('offer_id')) {
+            $offer_id = (int) $request->get('offer_id');
+        }
+
+        if ($request->filled('user_id')) {
+            $user_id = (int) $request->get('user_id');
+        }
+
+
 
         if ($offer_id && $user_id) {
 
@@ -251,8 +260,20 @@ class MainController extends Controller
     public function inside(Request $request)
     {
         $error = null;
-        $network_id = $request->input('network_id');
-        $sub_id = $request->input('subid');
+        $network_id = null;
+        $sub_id = null;
+        if ($request->filled('network_id')) {
+            $network_id = $request->get('network_id');
+        }
+
+        if ($request->filled('subid')) {
+            $sub_id = $request->get('subid');
+        } else {
+            if ($request->filled('sub_id')) {
+                $sub_id = $request->get('sub_id');
+            }
+        }
+
 
         if ($network_id && $sub_id) {
             $checkExistedLead = NetworkClick::where('network_id', $network_id)
@@ -274,7 +295,7 @@ class MainController extends Controller
 
                         $statusLead = true;
 
-                        if ($request->has('status') &&  $request->input('status') == -1) {
+                        if ($request->filled('status') &&  $request->get('status') == -1) {
                             $statusLead = false;
                         }
                         if ($statusLead) {
@@ -285,7 +306,7 @@ class MainController extends Controller
                                     'network_id' => $network_id,
                                     'network_offer_id' => $netOfferId,
                                     'sub_id' => $sub_id,
-                                    'amount' => $request->input('amount'),
+                                    'amount' => $request->filled('amount') ? $request->get('amount') : null,
                                     'ip' => $clickIp,
                                     'offer_id' => $offer->id,
                                     'click_id' => $clickTag->id,

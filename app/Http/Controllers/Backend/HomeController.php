@@ -38,6 +38,7 @@ class HomeController extends AdminController
             ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
             ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
             ->join('users', 'clicks.user_id', '=', 'users.id')
+            ->join('networks', 'networks.id', '=', 'network_clicks.network_id')
             ->where('offers.reject', false);
 
         if ($userId) {
@@ -96,16 +97,14 @@ class HomeController extends AdminController
         }
 
         $todayNetworkMoney = $networkQuery
-            ->join('networks', 'networks.id', '=', 'network_clicks.network_id')
-            ->select(DB::raw("SUM(offers.click_rate) as total, networks.id"))
+            ->select(DB::raw("SUM(offers.click_rate) as total, networks.name, networks.id"))
             ->whereBetween('network_clicks.created_at', [$todayStart, $todayEnd])
             ->groupBy('networks.id')
             ->get();
 
         foreach ($todayNetworkMoney as $networkMoney) {
-            $network = Network::find($networkMoney->id);
             $networkTotals[] = [
-                'name' => $network->name,
+                'name' => $networkMoney->name,
                 'total' => $networkMoney->total
             ];
         }

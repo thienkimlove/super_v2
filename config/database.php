@@ -195,7 +195,7 @@ return [
 
         'lumen' => [
             'driver' => 'mysql',
-            'host' => '103.7.41.141',
+            'host' => '115.146.123.46',
             'port' => '3306',
             'database' => 'lumen',
             'username' => 'tieungao',

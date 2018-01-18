@@ -39,7 +39,10 @@ class Site
     public static function getCountryCodeFromString($str)
     {
 
+        $str = '   '.$str;
+
         $str = str_replace(',', '  ', $str);
+        $str = str_replace('``', '  ', $str);
         $str = str_replace('-', '  ', $str);
         $str .= '  ';
 
@@ -95,6 +98,7 @@ class Site
         $geoLocations = null;
         $devices = null;
         $realDevice = 1;
+        $debug = null;
 
 
         #style 1
@@ -248,7 +252,15 @@ class Site
         }
 
         if (!$geoLocations && isset($offer['name'])) {
-            $geoLocations =  implode(',', self::getCountryCodeFromString($offer['name']));
+
+            $getCountryCodes = self::getCountryCodeFromString($offer['name']);
+
+            if ($getCountryCodes) {
+                $geoLocations =  implode(',', $getCountryCodes);
+            } else {
+               $debug .= 'Failed because can not get geo from name='.$offer['name'];
+            }
+
         }
 
         if ($network->rate_offer > 0) {
@@ -270,6 +282,15 @@ class Site
 
             if (isset($responseLinkJson['response']['data']['click_url'])) {
                 $redirectLink = $responseLinkJson['response']['data']['click_url'].'&aff_sub=#subId';
+            } else {
+                $debug .= 'Failed because link='.$getLinkUrl;
+                //\Log::info($responseLinkJson);
+                sleep(10);
+                $responseLinkJson2 = self::getUrlContent($getLinkUrl);
+                if (isset($responseLinkJson2['response']['data']['click_url'])) {
+                    $redirectLink = $responseLinkJson2['response']['data']['click_url'].'&aff_sub=#subId';
+                }
+
             }
         }
 
@@ -300,7 +321,8 @@ class Site
 
             return $netOfferId;
         } else {
-            \Log::info($offerName.' '.$netOfferId);
+            \Log::info($debug);
+           // \Log::info(json_encode($offer, true));
         }
 
         return null;
@@ -328,13 +350,15 @@ class Site
             }
 
 
-            foreach ($rawContent as $offer) {
-                $parseData = isset($offer['Offer']) ? $offer['Offer'] : $offer;
-                $parseResult = self::parseOffer($parseData, $network);
-                if ($parseResult) {
-                    $listCurrentNetworkOfferIds[] = self::parseOffer($parseData, $network);
+            if (is_array($rawContent)) {
+                foreach ($rawContent as $offer) {
+                    $parseData = isset($offer['Offer']) ? $offer['Offer'] : $offer;
+                    $parseResult = self::parseOffer($parseData, $network);
+                    if ($parseResult) {
+                        $listCurrentNetworkOfferIds[] = self::parseOffer($parseData, $network);
+                    }
+                    $total ++;
                 }
-                $total ++;
             }
         }
 
