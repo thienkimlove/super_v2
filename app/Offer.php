@@ -130,7 +130,11 @@ class Offer extends Model
                 return $response;
 
             })->addColumn('process', function ($offer) {
-                return '<div id="test_status_'.$offer->id.'"></div>';
+                $ok = null;
+                if (strpos($offer->test_link, 'OK') !== false) {
+                    $ok = $offer->test_link;
+                }
+                return '<div id="test_status_'.$offer->id.'">'.$ok.'</div>';
             })
             ->rawColumns(['network_name', 'status', 'action', 'name', 'allow_devices', 'redirect_link_for_user', 'check_click_in_network', 'allow_multi_lead', 'virtual_click', 'process'])
             ->make(true);

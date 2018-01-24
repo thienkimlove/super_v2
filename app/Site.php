@@ -78,8 +78,17 @@ class Site
         if ($response) {
             return array_unique($response);
         } else {
-           return null;
+           foreach (config('country') as $key =>  $value) {
+               if (strpos(strtolower($str), strtolower($value)) !== false) {
+                   $response[] = strtoupper($key);
+               }
+           }
+           if ($response) {
+               return array_unique($response);
+           }
         }
+
+        return null;
 
     }
 
@@ -111,43 +120,45 @@ class Site
         }
 
         if (isset($offer['Platforms'])) {
-            $devices = explode(',', $offer['Platforms']);
+            $devices = (strpos($offer['Platforms'], ',')  !== false) ? explode(',', $offer['Platforms']) : [$offer['Platforms']];
         }
 
         if (isset($offer['platform'])) {
-            $devices = explode(',', $offer['platform']);
+            $devices = (strpos($offer['platform'], ',')  !== false) ? explode(',', $offer['platform']) : [$offer['platform']];
         }
 
         if (!$devices && isset($offer['name'])) {
             $devices = explode(' ', $offer['name']);
         }
 
-        foreach ($devices as $device) {
+        if ($devices) {
+            foreach ($devices as $device) {
 
-            $deviceType = null;
+                $deviceType = null;
 
-            if (is_array($device)) {
-                $deviceType = strtolower($device['device_type']);
-            } else {
-                $deviceType = strtolower($device);
-            }
+                if (is_array($device)) {
+                    $deviceType = strtolower($device['device_type']);
+                } else {
+                    $deviceType = strtolower($device);
+                }
 
-            if (strpos($deviceType, 'ios') !== false) {
-                $ios = true;
-            }
+                if (strpos($deviceType, 'ios') !== false) {
+                    $ios = true;
+                }
 
-            if (strpos($deviceType, 'iphone') !== false) {
-                $isIphone = true;
-            }
-            if (strpos($deviceType, 'ipad') !== false) {
-                $isIpad = true;
-            }
-            if (strpos($deviceType, 'droid') !== false) {
-                $android = true;
-            }
+                if (strpos($deviceType, 'iphone') !== false) {
+                    $isIphone = true;
+                }
+                if (strpos($deviceType, 'ipad') !== false) {
+                    $isIpad = true;
+                }
+                if (strpos($deviceType, 'droid') !== false) {
+                    $android = true;
+                }
 
-            if ($isIphone && $isIpad) {
-                $ios = true;
+                if ($isIphone && $isIpad) {
+                    $ios = true;
+                }
             }
         }
 

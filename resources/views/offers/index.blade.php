@@ -299,11 +299,7 @@
                         }
                     }
                 }).always(function (res) {
-                    if (res.status === true) {
-                        $('div#test_status_' + offer_id).html('<span>' + res.msg + '</span><br/><span><img src="/test/' + offer_id + '_last.png" width="auto" height="100" /></span><br/><span><a target="_blank" href="/test/' + offer_id + '_last.html">Debug Html</a></span>');
-                    } else {
-                        $('div#test_status_' + offer_id).html(res.msg);
-                    }
+                    $('div#test_status_' + offer_id).html(res.msg);
                 });
             });
         });

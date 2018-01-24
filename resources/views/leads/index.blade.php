@@ -196,7 +196,7 @@
                     }
                 },
                 columns: [
-                    {data: 'id', name: 'id'},
+                    {data: 'offer_id', name: 'offer_id'},
                     {data: 'offer_name', name: 'offer_name'},
                     {data: 'offer_click_rate', name: 'offer_click_rate'},
                     {data: 'ip', name: 'ip'},

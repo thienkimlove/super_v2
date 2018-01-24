@@ -105,6 +105,8 @@ class NetworkClick extends Model
             })
             ->addColumn('offer_name', function ($networkClick) {
                 return $networkClick->offer->name;
+            })->addColumn('offer_id', function ($networkClick) {
+                return $networkClick->offer->id;
             })->addColumn('offer_click_rate', function ($networkClick) {
                 return $networkClick->offer->click_rate;
             })->addColumn('username', function ($networkClick) {
