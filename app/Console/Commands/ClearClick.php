@@ -38,28 +38,36 @@ class ClearClick extends Command
      */
     public function handle()
     {
-        $time = Carbon::now()->subDays(5)->toDateTimeString();
-        foreach (config('site.list') as $site) {
 
-            $networks = \DB::connection($site)->table('networks')->get();
-            foreach ($networks as $network) {
+        $config = env('SITE_NAME');
 
-                try {
-                    \DB::connection($site)->beginTransaction();
+        if ($config) {
 
-                    \DB::connection($site)->statement("delete from offers where network_id=".$network->id." AND id not in (select offer_id from network_clicks) and created_at < '$time' limit 1000");
+            $this->line('Config='.$config);
 
-                    //\DB::connection($site)->statement("delete from clicks where offer_id not in (select id from offers)");
-                    \DB::connection($site)->commit();
-                } catch (\Exception $e) {
-                    \DB::connection($site)->rollBack();
-                    $this->line($e->getMessage());
+            $time = Carbon::now()->subDays(5)->toDateTimeString();
+            foreach (config('site.'.$config) as $site) {
+
+                $networks = \DB::connection($site)->table('networks')->get();
+                foreach ($networks as $network) {
+
+                    try {
+                        \DB::connection($site)->beginTransaction();
+
+                        \DB::connection($site)->statement("delete from offers where network_id=".$network->id." AND id not in (select offer_id from network_clicks) and created_at < '$time' limit 1000");
+
+                        //\DB::connection($site)->statement("delete from clicks where offer_id not in (select id from offers)");
+                        \DB::connection($site)->commit();
+                    } catch (\Exception $e) {
+                        \DB::connection($site)->rollBack();
+                        $this->line($e->getMessage());
+                    }
+
                 }
-
             }
-
-
-
+        } else {
+            $this->line('Can not get config variable');
         }
+
     }
 }

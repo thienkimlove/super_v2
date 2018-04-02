@@ -37,6 +37,8 @@ class Network extends Model
                     $response_html .= '<a class="table-action-btn" title="Run Cron" target="_blank" href="http://115.146.127.8:8080/core/cron/?site='.env('DB_DATABASE').'&network_id='.$network->id.'"><i class="fa fa-tasks text-success"></i></a>';
                 }
 
+               // $response_html .= '<a class="table-action-btn" title="Run Cron" href="' . route('networks.cron', $network->id) . '"><i class="fa fa-tasks text-success"></i></a>';
+
                 return $response_html;
 
             })

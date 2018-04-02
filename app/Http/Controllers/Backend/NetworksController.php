@@ -24,7 +24,6 @@ class NetworksController extends Controller
             }
         } catch (\Exception $e) {
             flash()->error('Error!', $e->getMessage());
-            \Log::info($e->getTraceAsString());
             return redirect()->route('networks.index');
         }
 

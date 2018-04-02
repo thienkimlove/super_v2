@@ -141,13 +141,6 @@ class Site
             $devices = (strpos($offer['platform'], ',')  !== false) ? explode(',', $offer['platform']) : [$offer['platform']];
         }
 
-
-        if (isset($offer['offer_platform']['target'])) {
-            foreach ($offer['offer_platform']['target'] as $target) {
-                $devices[] =  $target['system'];
-            }
-        }
-
         if (!$devices && isset($offer['name'])) {
 
             $str = '   '.$offer['name'];
@@ -210,12 +203,6 @@ class Site
             }
         }
 
-        if (isset($offer['offer_geo']['target'])) {
-            foreach ($offer['offer_geo']['target'] as $country) {
-                $countries[]  = $country['country_code'];
-            }
-        }
-
         if (isset($offer['id'])) {
             $netOfferId = $offer['id'];
         }
@@ -232,17 +219,9 @@ class Site
             $netOfferId = $offer['offerid'];
         }
 
-        if (isset($offer['offer']['id'])) {
-            $netOfferId = $offer['offer']['id'];
-        }
-
 
         if (isset($offer['tracking_link'])) {
             $redirectLink = $offer['tracking_link'].'&aff_sub=#subId';
-        }
-
-        if (isset($offer['offer']['tracking_link'])) {
-            $redirectLink = $offer['offer']['tracking_link'].'&aff_sub=#subId';
         }
 
         if (isset($offer['tracking_url'])) {
@@ -262,10 +241,6 @@ class Site
             $payout = $offer['payout'];
         }
 
-        if (isset($offer['offer']['payout'])) {
-            $payout = $offer['offer']['payout'];
-        }
-
         if (isset($offer['default_payout'])) {
             $payout = $offer['default_payout'];
         }
@@ -280,10 +255,6 @@ class Site
 
         if (isset($offer['name'])) {
             $offerName = str_limit( $offer['name'], 250);
-        }
-
-        if (isset($offer['offer']['name'])) {
-            $offerName = str_limit($offer['offer']['name'], 250);
         }
 
         if (isset($offer['offer_name'])) {
@@ -400,24 +371,14 @@ class Site
         $offers = self::getUrlContent($feed_url);
         $listCurrentNetworkOfferIds = [];
 
-        $listExtraUrl = [];
-
         $total = 0;
 
         if ($offers) {
-
-            if (isset($offers['data']['totalPages']) && isset($offers['data']['limit'])) {
-                for ($i = 1; $i < $offers['data']['totalPages']; $i ++) {
-                    $listExtraUrl[] = $feed_url.'&limit='.$offers['data']['limit'].'&offset='.$offers['data']['limit']*$i;
-                }
-            }
 
             if (isset($offers['offers'])) {
                 $rawContent = $offers['offers'];
             } elseif (isset($offers['response']['data'])) {
                 $rawContent = $offers['response']['data'];
-            }  elseif (isset($offers['data']['rowset'])) {
-                $rawContent = $offers['data']['rowset'];
             } else {
                 $rawContent = $offers;
             }
@@ -431,33 +392,6 @@ class Site
                         $listCurrentNetworkOfferIds[] = self::parseOffer($parseData, $network);
                     }
                     $total ++;
-                }
-            }
-
-            if ($listExtraUrl) {
-                foreach ($listExtraUrl as $extra) {
-                    $offerExtras = self::getUrlContent($extra);
-                    if (isset($offerExtras['offers'])) {
-                        $rawContentExtra = $offerExtras['offers'];
-                    } elseif (isset($offerExtras['response']['data'])) {
-                        $rawContentExtra = $offerExtras['response']['data'];
-                    }  elseif (isset($offerExtras['data']['rowset'])) {
-                        $rawContentExtra = $offerExtras['data']['rowset'];
-                    } else {
-                        $rawContentExtra = $offerExtras;
-                    }
-
-
-                    if (is_array($rawContentExtra)) {
-                        foreach ($rawContentExtra as $offer) {
-                            $parseData = isset($offer['Offer']) ? $offer['Offer'] : $offer;
-                            $parseResult = self::parseOffer($parseData, $network);
-                            if ($parseResult) {
-                                $listCurrentNetworkOfferIds[] = self::parseOffer($parseData, $network);
-                            }
-                            $total ++;
-                        }
-                    }
                 }
             }
         }
@@ -505,31 +439,12 @@ class Site
         $response = [];
 
         try {
-            $username = null;
-            $password = null;
-            if (strpos($url, '@') !== FALSE) {
-                $parse = parse_url($url);
-                $username = isset($parse['user']) ? $parse['user'] : null;
-                $password = isset($parse['pass']) ? $parse['pass'] : null;
-
-                if ($username && $password) {
-                    $url = str_replace("$username:$password@", "", $url);
-                }
-            }
-
-
             $client = new Client();
-
-            if ($username && $password) {
-                $response = $client->get($url, ['auth' => [$username, $password]]);
-            } else {
-                $response = $client->get($url);
-            }
-
-            $ticketResponse = $response->getBody();
+            $res = $client->request('GET', $url);
+            $ticketResponse = $res->getBody();
             $response = json_decode($ticketResponse, true);
         } catch (\Exception $e) {
-            //dd($e->getMessage());
+
         }
 
         return $response;
