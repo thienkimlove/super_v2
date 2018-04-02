@@ -78,7 +78,7 @@
 
                             <div class="form-group m-l-10">
                                 <label class="sr-only" for="">Offer</label>
-                                {!! Form::select('offer_id', ['' => '--- Chọn Offer ---'] + \App\Site::offerList(), null, ['class' => 'form-control select2']) !!}
+                                {!! Form::select('offer_id', ['' => '--- Chọn Offer ---'] + \App\Site::offerListHaveLead(), null, ['class' => 'form-control select2']) !!}
                             </div>
 
                             <div class="form-group m-l-10">

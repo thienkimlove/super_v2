@@ -14,7 +14,7 @@ class AddIndexToOffers extends Migration
     public function up()
     {
         Schema::table('offers', function (Blueprint $table) {
-            //$table->index('status');
+            $table->index('status');
         });
     }
 

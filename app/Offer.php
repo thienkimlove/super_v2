@@ -132,12 +132,91 @@ class Offer extends Model
             })->addColumn('process', function ($offer) {
                 $ok = null;
                 if (strpos($offer->test_link, 'OK') !== false) {
-                    $ok = $offer->test_link;
+                    $ok = '<div class="alert alert-success"><b>'.$offer->test_link.'</b></div>';
                 }
                 return '<div id="test_status_'.$offer->id.'">'.$ok.'</div>';
             })
             ->rawColumns(['network_name', 'status', 'action', 'name', 'allow_devices', 'redirect_link_for_user', 'check_click_in_network', 'allow_multi_lead', 'virtual_click', 'process'])
             ->make(true);
+    }
+
+
+    public static function exportToExcel($request)
+    {
+        ini_set('memory_limit', '2048M');
+
+        $query = static::select('*')->latest('created_at');
+
+        if ($request->filled('filter_name')) {
+            $query->where('name', 'like', '%' . $request->get('filter_name') . '%');
+        }
+
+        if ($request->filled('filter_network_id')) {
+            $query->where('network_id', $request->get('filter_network_id'));
+        }
+
+        if ($request->filled('filter_auto')) {
+            $query->where('auto', $request->get('filter_auto'));
+        }
+
+        if ($request->filled('filter_uid')) {
+            $query->where('id', $request->get('filter_uid'))
+                ->orWhere('net_offer_id', $request->get('filter_uid'));
+        }
+
+        if ($request->filled('filter_status')) {
+            $query->where('status', $request->get('filter_status'));
+        }
+
+        if ($request->filled('filter_reject')) {
+            $query->where('reject', $request->get('filter_reject'));
+        }
+
+        if ($request->filled('filter_country')) {
+            $query->where('geo_locations', 'like', '%' . $request->get('filter_country') . '%');
+        }
+
+        if ($request->filled('filter_device')) {
+            $searchDevice = urldecode($request->get('filter_device'));
+            if ($searchDevice == 5) {
+                $query->whereIn('allow_devices', [5, 6, 7]);
+            } else {
+                $query->where('allow_devices', $searchDevice);
+            }
+        }
+
+        $reports = $query->get();
+
+        return (new static())->createExcelFile($reports);
+    }
+
+    public function createExcelFile($reports)
+    {
+        $objReader = \PHPExcel_IOFactory::createReader('Excel2007');
+        $objPHPExcel = $objReader->load(resource_path('templates/offers.xlsx'));
+
+        $row = 2;
+        foreach ($reports as $report) {
+            $objPHPExcel->getActiveSheet()->setCellValue('A'.$row, $row - 1)
+                ->setCellValue('B'.$row, $report->network->name)
+                ->setCellValue('C'.$row, $report->id)
+                ->setCellValue('D'.$row, $report->net_offer_id)
+                ->setCellValue('E'.$row, $report->name)
+                ->setCellValue('F'.$row, $report->geo_locations)
+                ->setCellValue('G'.$row, $report->click_rate)
+                ->setCellValue('H'.$row, $report->redirect_link);
+
+            $row++;
+        }
+
+
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+
+        $path = 'reports_'.date('Y_m_d_His').'.xlsx';
+
+        $objWriter->save(storage_path('app/public/' . $path));
+
+        return redirect('/storage/' . $path);
     }
 
 }

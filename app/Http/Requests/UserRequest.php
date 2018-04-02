@@ -80,6 +80,12 @@ class UserRequest extends FormRequest
             ]);
         }
 
+        if (!$this->filled('permission_id')) {
+            $this->merge([
+                'permission_id' => 0,
+            ]);
+        }
+
 
 
         User::create(array_merge($this->all(), ['password' => md5(time())]));
@@ -101,6 +107,12 @@ class UserRequest extends FormRequest
         if (!$this->filled('group_id')) {
             $this->merge([
                 'group_id' => 0,
+            ]);
+        }
+
+        if (!$this->filled('permission_id')) {
+            $this->merge([
+                'permission_id' => 0,
             ]);
         }
 

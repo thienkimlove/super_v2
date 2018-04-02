@@ -10,6 +10,7 @@ use App\User;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
+use Cache;
 
 class HomeController extends AdminController
 {
@@ -48,9 +49,9 @@ class HomeController extends AdminController
         //recent lead.
 
 
-        $userRecent = clone $initQuery;
+        $userRecentQuery = clone $initQuery;
 
-        $userRecent = $userRecent
+        $userRecent =  $userRecentQuery
             ->select('offers.name', 'network_clicks.ip', 'network_clicks.created_at', 'users.username')
             ->orderBy('network_clicks.id', 'desc')
             ->limit(10)
@@ -201,7 +202,9 @@ class HomeController extends AdminController
             }
         }
 
-        return [$content, $userRecent, $todayOffers, $yesterdayOffers, $weekOffers, $userTotals, $networkTotals];
+        $generate =  [$content, $userRecent, $todayOffers, $yesterdayOffers, $weekOffers, $userTotals, $networkTotals];
+
+        return $generate;
 
     }
 
@@ -312,7 +315,7 @@ class HomeController extends AdminController
                     $clicks = $clicks->where('offers.id', $offerSearchId);
                 }
 
-                $clicks = $clicks->orderBy('network_clicks.id', 'desc')
+                $clicks =  $clicks->orderBy('network_clicks.id', 'desc')
                     ->paginate(10);
 
                 $countTotal = DB::table('network_clicks')
@@ -426,7 +429,7 @@ class HomeController extends AdminController
                 }
 
                 $clicks = $clicks->orderBy('network_clicks.id', 'desc')
-                ->paginate(10);
+                    ->paginate(10);
 
             $countTotal = DB::table('network_clicks')
                 ->select(DB::raw("SUM(offers.click_rate) as totalMoney, COUNT(network_clicks.id) as totalClicks"))
@@ -595,15 +598,17 @@ class HomeController extends AdminController
     public function recentLead()
     {
 
-        $siteRecentLead = DB::table('network_clicks')
-            ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
-            ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
-            ->join('users', 'clicks.user_id', '=', 'users.id')
-            ->where('offers.reject', false)
-            ->select('offers.name', 'offers.id', 'clicks.created_at as click_at', 'network_clicks.ip as network_ip', 'network_clicks.created_at', 'users.username', 'network_clicks.id as postback_id')
-            ->orderBy('network_clicks.id', 'desc')
-            ->limit(10)
-            ->get();
+        $siteRecentLead = Cache::remember(env('DB_DATABASE').'_recent_lead', 1, function () {
+            return DB::table('network_clicks')
+                ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
+                ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
+                ->join('users', 'clicks.user_id', '=', 'users.id')
+                ->where('offers.reject', false)
+                ->select('offers.name', 'offers.id', 'clicks.created_at as click_at', 'network_clicks.ip as network_ip', 'network_clicks.created_at', 'users.username', 'network_clicks.id as postback_id')
+                ->orderBy('network_clicks.id', 'desc')
+                ->limit(10)
+                ->get();
+        });
 
         return response()->json(['html' => view('recent', compact('siteRecentLead'))->render()]);
 

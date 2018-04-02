@@ -29,9 +29,9 @@ def load(url):
     driver = webdriver.PhantomJS(executable_path=r'/usr/local/share/phantomjs-2.1.1-linux-x86_64/bin/phantomjs',desired_capabilities=dcap, service_args=service_args)
 
     driver.get(url)
-    resume = wait.until(EC.presence_of_element_located((By.XPATH,"//input[@type='submit' and @class='btn']")))
+    resume = wait.until(EC.presence_of_element_located((By.XPATH,"//button[@type='submit' and @class='btn']")))
     driver.implicitly_wait(50)
-    resume.click()
+    resume.click()   
     wait(driver, 120).until_not(EC.title_is(title))
     driver.save_screenshot("/var/www/html/super_v2/pubic/test/#OFFERID#_last.png")
     os.chmod("/tmp/#OFFERID#_last.png", 0o777)

@@ -62,6 +62,14 @@
                         </div>
 
                         <div class="form-group">
+                            <label class="col-md-3 control-label">Is Admin</label>
+                            <div class="col-md-9">
+                                {!! Form::checkbox('permission_id', '1', $user->permission_id, ['data-plugin' => 'switchery', 'data-color' => '#81c868']) !!}
+                                <span class="lbl"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="col-md-3 control-label">Ngày tạo</label>
                             <div class="col-md-9">
                                 <p class="form-control-static">{{ $user->created_at }}</p>

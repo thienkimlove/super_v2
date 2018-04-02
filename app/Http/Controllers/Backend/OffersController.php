@@ -52,12 +52,11 @@ class OffersController extends Controller
         return redirect()->back();
     }
 
-    private function virtualCurl($isoCode, $url, $userAgent, $currentRedirection = 0)
+    private function virtualCurl($isoCode, $url, $userAgent, $offer, $session, $currentRedirection = 0)
     {
         $username = 'lum-customer-theway_holdings-zone-nam-country-' . strtolower($isoCode);
         $password = '99oah6sz26i5';
         $port = 22225;
-        $session = mt_rand();
         $super_proxy = 'zproxy.luminati.io';
         $url = str_replace("&amp;", "&", urldecode(trim($url)));
         $curl = curl_init($url);
@@ -73,133 +72,63 @@ class OffersController extends Controller
         $result = curl_exec($curl);
         curl_close($curl);
 
-        if (preg_match("/itunes.apple.com/i", $result, $value) || preg_match("/play.google.com/i", $result, $value)) {
-            return ['OK', $result];
-        }
+        $result = str_replace('\/', '/', $result);
 
         if ($currentRedirection < 6 &&
             isset($result) &&
             is_string($result) &&
-            (preg_match("/window.location.replace('(.*)')/i", $result, $value) ||
-                preg_match("/window.top.location\s*=\s*[\"'](.*)[\"']/i", $result, $value) ||
-                preg_match("/window.location\s*=\s*[\"'](.*)[\"']/i", $result, $value) ||
-                preg_match("/meta\s*http-equiv\s*=\s*[\"']refresh['\"]\s*content=[\"']\d+;url\s*=\s*(.*)['\"]/i", $result, $value) ||
-                preg_match("/location.href\s*=\s*[\"'](.*)[\"']/i", $result, $value))) {
-            return $this->virtualCurl($isoCode, $value[1], $userAgent, ++$currentRedirection);
-        } else {
-            return [$url, $result];
-        }
-    }
+            (preg_match('/window\.location\.replace\(["\']?(https?\:\/\/[^"\']+)/i', $result, $value) ||
+                preg_match('/window.location\s*=\s*["\']?(https?\:\/\/[^"\']+)/i', $result, $value) ||
+                preg_match('/window\.top\.location\.replace\(["\']?(https?\:\/\/[^"\']+)/i', $result, $value) ||
+                preg_match("/window.top.location\s*=\s*[\"']?(https?\:\/\/[^\"']+)/i", $result, $value) ||
+                preg_match('/meta\s*http-equiv\s*=\s*["\']?refresh["\']?\s*content=["\']?\d+;(?:url\s*=)?\s*[\'"]?(https?\:\/\/[^"\']+)/i', $result, $value) ||
+                preg_match('/meta\s*http-equiv\s*=\s*["\']?refresh["\']?\s*content=["\']?\d+;\s*(?:url\s*=)?\s*[\'"]?(https?:\/\/[^"\']+)/i', $result, $value) ||
+                preg_match('/meta\.content\s*=\s*["\']?\d+;\s*(?:url\s*=)?\s*[\'"]?(https?:\/\/[^"\']+)/i', $result, $value) ||
+                preg_match("/location.href\s*=\s*[\"']?(https?\:\/\/[^\"']+)/i", $result, $value))) {
 
+            return $this->virtualCurl($isoCode, $value[1], $userAgent, $offer, $session, ++$currentRedirection);
 
-    public function test3($id)
-    {
-
-        $offer = Offer::find($id);
-
-        $offer_locations = trim(strtoupper($offer->geo_locations));
-        if (!$offer_locations || ($offer_locations == 'ALL')) {
-            $offer_locations = 'US';
         }
 
-        if (strpos($offer_locations, 'GB') !== false) {
-            $offer_locations .= ',UK';
+        $responseUrl = $url;
+
+        if (preg_match("/(itunes\.apple\.com)/im", $url, $matches)) {
+            $responseUrl = 'OK '.$matches[1];
+            $offer->update(['test_link' => $responseUrl]);
         }
 
-        if (strpos($offer_locations, 'UK') !== false) {
-            $offer_locations .= ',GB';
+        if (preg_match("/(play\.google\.com)/im", $url, $matches)) {
+            $responseUrl = 'OK '.$matches[1];
+            $offer->update(['test_link' => $responseUrl]);
         }
 
-        $country = (strpos($offer_locations, ',') !== false) ? explode(',', $offer_locations)[0] : $offer_locations;
+        if (strpos($responseUrl, 'OK') === false) {
+            if ($result) {
+                if (preg_match("/(itunes\.apple\.com)/im", $result, $matches)) {
+                    $responseUrl = 'OK '.$matches[1];
+                    $offer->update(['test_link' => $responseUrl]);
+                }
 
-        $country = strtolower($country);
-
-        $url = str_replace('#subId', '', $offer->redirect_link);
-
-
-        $trueAgent = ($offer->allow_devices > 4) ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1 like Mac OS X) AppleWebKit/602.2.14 (KHTML, like Gecko) Mobile/14B72' : 'Mozilla/5.0 (Linux; Android 5.0.1; SAMSUNG SM-N920K Build/LRX22C) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/3.4 Chrome/34.0.1847.118 Mobile Safari/537.36';
-
-        list($endUrl, $result) = $this->virtualCurl($country, $url, $trueAgent);
-
-        file_put_contents(public_path('test/'.$offer->id.'_last.html'), $result.$country);
-
-        return response()->json(['status' => true, 'msg' => $endUrl]);
-    }
-
-    public function test5($id)
-    {
-
-        $offer = Offer::find($id);
-        $trueAgent = ($offer->allow_devices > 4) ? 'ios' : 'android';
-        $url = str_replace('#subId', '', $offer->redirect_link);
-
-        $offer_locations = trim(strtoupper($offer->geo_locations));
-        if (!$offer_locations || ($offer_locations == 'ALL')) {
-            $offer_locations = 'US';
+                if (preg_match("/(play\.google\.com)/im", $result, $matches)) {
+                    $responseUrl = 'OK '.$matches[1];
+                    $offer->update(['test_link' => $responseUrl]);
+                }
+            }
         }
 
-        if (strpos($offer_locations, 'GB') !== false) {
-            $offer_locations .= ',UK';
+        $responseUrl = '<div class="alert alert-success">EndURL <b>'. $responseUrl.'</b></div>';
+
+
+        if (strpos($responseUrl, 'OK') === false && $result) {
+            $responseUrl .= '<br/><div class="alert alert-danger">'. preg_replace("/&#?[a-z0-9]{2,8};/i","",strip_tags($result)).'</div>';
         }
 
-        if (strpos($offer_locations, 'UK') !== false) {
-            $offer_locations .= ',GB';
-        }
-
-        $country = (strpos($offer_locations, ',') !== false) ? explode(',', $offer_locations)[0] : $offer_locations;
-
-        $country = strtolower($country);
-
-
-        $url = 'https://offertest.net/offertest/?country='.$country.'&os='.$trueAgent.'&target=android&url='.$url;
-        $session = mt_rand();
-
-        $background = file_get_contents(resource_path('test.py'));
-        $background = str_replace(['#URL#', '#OFFERID#'], [$url, $offer->id], $background);
-
-        $tempPythonFile = '/tmp/exe_'.$session.'_.py';
-        file_put_contents($tempPythonFile, $background);
-        $endHtml = null;
-
-        try {
-            $process = new Process('python '.$tempPythonFile, '/tmp', null, null, 120);
-            $process->run();
-            return response()->json(['status' => true, 'msg' => '<img src="'.url('test/'.$offer->id.'_last.png').'" height="100" width="100" />']);
-        } catch (\Exception $e) {
-            return response()->json(['status' => false, 'msg' => $e->getMessage()]);
-        }
+        return $responseUrl;
 
     }
 
-
-    public function test($id)
+    private function python($country, $url, $trueAgent, $offer)
     {
-
-        $offer = Offer::find($id);
-
-        $offer_locations = trim(strtoupper($offer->geo_locations));
-        if (!$offer_locations || ($offer_locations == 'ALL')) {
-            $offer_locations = 'US';
-        }
-
-        if (strpos($offer_locations, 'GB') !== false) {
-            $offer_locations .= ',UK';
-        }
-
-        if (strpos($offer_locations, 'UK') !== false) {
-            $offer_locations .= ',GB';
-        }
-
-        $country = (strpos($offer_locations, ',') !== false) ? explode(',', $offer_locations)[0] : $offer_locations;
-
-        $country = strtolower($country);
-
-        $url = str_replace('#subId', '', $offer->redirect_link);
-
-        #iOS 10.2.1
-        #Samsung s8
-        $trueAgent = ($offer->allow_devices > 4) ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2_1 like Mac OS X) AppleWebKit/602.4.6 (KHTML, like Gecko) Version/10.0 Mobile/14D27 Safari/602.1' : 'Mozilla/5.0 (Linux; Android 7.0; SAMSUNG SM-G950F Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/5.2 Chrome/51.0.2704.106 Mobile Safari/537.36';
-
         $username = 'lum-customer-theway_holdings-zone-nam-country-' . strtolower($country);
         $session = mt_rand();
 
@@ -262,12 +191,61 @@ class OffersController extends Controller
                 $endHtml .= '<br/><span><img src="'.url('test/'.$offer->id.'_last.png').'" height="100" width="auto" /></span>';
             }
 
-            return response()->json(['status' => true, 'msg' => $endHtml]);
         } catch (\Exception $e) {
-            return response()->json(['status' => false, 'msg' => $e->getMessage()]);
+            $endHtml = $e->getMessage();
         }
+        return $endHtml;
 
     }
+
+
+    public function test($id)
+    {
+
+        $offer = Offer::find($id);
+
+        $offer_locations = trim(strtoupper($offer->geo_locations));
+        if (!$offer_locations || ($offer_locations == 'ALL')) {
+            $offer_locations = 'US';
+        }
+
+        if (strpos($offer_locations, 'GB') !== false) {
+            $offer_locations .= ',UK';
+        }
+
+        if (strpos($offer_locations, 'UK') !== false) {
+            $offer_locations .= ',GB';
+        }
+
+        $country = (strpos($offer_locations, ',') !== false) ? explode(',', $offer_locations)[0] : $offer_locations;
+
+        $country = strtolower($country);
+
+        $url = str_replace('#subId', '', $offer->redirect_link);
+        $url = str_replace('#subid', '', $url);
+
+        $testUrl = 'http://local.python.vn/core/test?allow='.$offer->allow_devices.'&link='.urlencode($url).'&country='.$country;
+
+        $result = @file_get_contents($testUrl);
+
+        if (strpos($result, 'OK!') !== false) {
+            $class = 'success';
+            $offer->update(['test_link' => $result]);
+        } else {
+            $class = 'danger';
+        }
+
+        $responseUrl = '<div class="alert alert-'.$class.'"><b>'.$result.'</b></div>';
+
+
+
+        //$pythonUrl = $this->python($country, $url, $trueAgent, $offer);
+
+        //return response()->json(['status' => true, 'msg' => '<div><span>PHP</span><br/>'.$phpUrl.'<br/><span>Python</span><br/>'.$pythonUrl.'</div>']);
+
+        return response()->json(['status' => true, 'msg' => $responseUrl]);
+    }
+
 
     public function index()
     {
@@ -307,6 +285,11 @@ class OffersController extends Controller
     public function dataTables(Request $request)
     {
         return Offer::getDataTables($request);
+    }
+
+    public function export(Request $request)
+    {
+        return Offer::exportToExcel($request);
     }
 
 }

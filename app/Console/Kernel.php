@@ -26,6 +26,13 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+
+        $schedule->command('geoip:update')->daily();
+
+        $schedule->command('clear:click')
+            ->appendOutputTo(storage_path('logs/clear_click.log'))
+            ->withoutOverlapping()
+            ->everyMinute();
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class ClearClick extends Command
@@ -37,8 +38,28 @@ class ClearClick extends Command
      */
     public function handle()
     {
+        $time = Carbon::now()->subDays(5)->toDateTimeString();
         foreach (config('site.list') as $site) {
-            \DB::connection($site)->statement("delete from clicks where offer_id not in (select id from offers)");
+
+            $networks = \DB::connection($site)->table('networks')->get();
+            foreach ($networks as $network) {
+
+                try {
+                    \DB::connection($site)->beginTransaction();
+
+                    \DB::connection($site)->statement("delete from offers where network_id=".$network->id." AND id not in (select offer_id from network_clicks) and created_at < '$time' limit 1000");
+
+                    //\DB::connection($site)->statement("delete from clicks where offer_id not in (select id from offers)");
+                    \DB::connection($site)->commit();
+                } catch (\Exception $e) {
+                    \DB::connection($site)->rollBack();
+                    $this->line($e->getMessage());
+                }
+
+            }
+
+
+
         }
     }
 }

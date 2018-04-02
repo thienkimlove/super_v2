@@ -62,9 +62,9 @@ class NetworkClick extends Model
         }
 
         if ($request->filled('date')) {
-            $dateRange = explode(' - ', $request->get('date'));
-            $query->whereDate('network_clicks.created_at', '>=', Carbon::createFromFormat('d/m/Y', $dateRange[0])->toDateString());
-            $query->whereDate('network_clicks.created_at', '<=', Carbon::createFromFormat('d/m/Y', $dateRange[1])->toDateString());
+            $dateRange = explode('-', $request->get('date'));
+            $query->whereDate('network_clicks.created_at', '>=', Carbon::createFromFormat('d/m/Y', trim($dateRange[0]))->toDateString());
+            $query->whereDate('network_clicks.created_at', '<=', Carbon::createFromFormat('d/m/Y', trim($dateRange[1]))->toDateString());
         }
         $reports = $query->first();
 
@@ -149,9 +149,9 @@ class NetworkClick extends Model
         }
 
         if ($request->filled('filter_date')) {
-            $dateRange = explode(' - ', $request->get('filter_date'));
-            $query->whereDate('network_clicks.created_at', '>=', Carbon::createFromFormat('d/m/Y', $dateRange[0])->toDateString());
-            $query->whereDate('network_clicks.created_at', '<=', Carbon::createFromFormat('d/m/Y', $dateRange[1])->toDateString());
+            $dateRange = explode('-', $request->get('filter_date'));
+            $query->whereDate('network_clicks.created_at', '>=', Carbon::createFromFormat('d/m/Y', trim($dateRange[0]))->toDateString());
+            $query->whereDate('network_clicks.created_at', '<=', Carbon::createFromFormat('d/m/Y', trim($dateRange[1]))->toDateString());
         }
 
         $totalQuery = clone $query;

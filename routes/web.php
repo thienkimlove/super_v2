@@ -33,6 +33,7 @@ Route::group(['middleware' => 'acl'], function() {
     Route::get('offers.reject/{id}', ['uses' => 'Backend\OffersController@reject', 'as' => 'offers.reject']);
     Route::get('offers.accept/{id}', ['uses' => 'Backend\OffersController@accept', 'as' => 'offers.accept']);
     Route::get('offers.clear/{id}', ['uses' => 'Backend\OffersController@clear', 'as' => 'offers.clear']);
+    Route::get('offers/export-to-excel', 'Backend\OffersController@export')->name('offers.export');
     Route::resource('admin/offers', 'Backend\OffersController');
 
     Route::get('groups.dataTables', ['uses' => 'Backend\GroupsController@dataTables', 'as' => 'groups.dataTables']);

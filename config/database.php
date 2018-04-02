@@ -83,11 +83,11 @@ return [
             'unix_socket' => '/var/run/mysqld/mysqld.sock'
         ],
 
-        'azoffers' => [
+        'new_azoffers' => [
             'driver' => 'mysql',
             'host' => '127.0.0.1',
             'port' => '3306',
-            'database' => 'azoffers',
+            'database' => 'new_azoffers',
             'username' => 'root',
             'password' => 'tieungao',
             'charset' => 'utf8mb4',
@@ -175,6 +175,22 @@ return [
         ],
 
 
+        'bestgame' => [
+            'driver' => 'mysql',
+            'host' => '127.0.0.1',
+            'port' => '3306',
+            'database' => 'bestgame',
+            'username' => 'root',
+            'password' => 'tieungao',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+            'unix_socket' => '/var/run/mysqld/mysqld.sock'
+        ],
+
+
 
 
 
@@ -209,9 +225,9 @@ return [
 
         'virtual' => [
             'driver' => 'mysql',
-            'host' => '127.0.0.1',
+            'host' => '115.146.123.46',
             'port' => '3306',
-            'database' => 'virtuals',
+            'database' => 'lumen',
             'username' => 'tieungao',
             'password' => 'tieungao123',
             'charset' => 'utf8',

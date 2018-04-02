@@ -67,7 +67,7 @@
 
                             <div class="form-group m-l-10">
                                 <label class="sr-only" for="">Devices</label>
-                                {!! Form::select('device', ['' => '--- Chọn Devices ---'] + config('devices'), null, ['class' => 'form-control select2']) !!}
+                                {!! Form::select('device', ['' => 'Choose Devices'] + config('devices'), null, ['class' => 'form-control select2']) !!}
                             </div>
 
 
@@ -75,26 +75,26 @@
 
                             <div class="form-group m-l-10">
                                 <label class="sr-only" for="">Network</label>
-                                {!! Form::select('network_id', ['' => '--- Chọn Network ---'] + \App\Site::networkList(), null, ['class' => 'form-control select2']) !!}
+                                {!! Form::select('network_id', ['' => 'Choose Network'] + \App\Site::networkList(), null, ['class' => 'form-control select2']) !!}
                             </div>
 
 
                             <div class="form-group m-l-10">
-                                <label class="sr-only" for="">Auto Or Not</label>
-                                {!! Form::select('auto', [1 => 'Auto', 0 => 'Manual'], null, ['class' => 'form-control']) !!}
+                                <label class="sr-only" for="">Choose Auto</label>
+                                {!! Form::select('auto', ['' => 'Choose Auto', 1 => 'Auto', 0 => 'Manual'], null, ['class' => 'form-control']) !!}
                             </div>
 
 
                                 <div class="form-group m-l-10">
-                                    <label class="sr-only" for="">Rejected</label>
-                                    {!! Form::select('reject', [0 => 'Not Rejected', 1 => 'Rejected'], null, ['class' => 'form-control']) !!}
+                                    <label class="sr-only" for="">Choose Reject</label>
+                                    {!! Form::select('reject', [ '' => 'Choose Reject', 0 => 'Not Rejected', 1 => 'Rejected'], null, ['class' => 'form-control']) !!}
                                 </div>
 
 
 
                                 <div class="form-group m-l-10">
                                     <label class="sr-only" for="">Status</label>
-                                    {!! Form::select('status', [1 => 'Active', 0 => 'Inactive'], null, ['class' => 'form-control']) !!}
+                                    {!! Form::select('status', ['' => 'Choose Status', 1 => 'Active', 0 => 'Inactive'], null, ['class' => 'form-control']) !!}
                                 </div>
 
                             @endif
@@ -103,6 +103,24 @@
 
                             <button type="submit" class="btn btn-success waves-effect waves-light m-l-15">Tìm kiếm</button>
                         </form>
+                        <div class="form-group pull-right">
+                            {!! Form::open(['route' => 'offers.export', 'method' => 'get', 'role' => 'form', 'class' => 'form-inline', 'id' => 'export-form']) !!}
+
+                            {{Form::hidden('filter_name', null)}}
+                            {{Form::hidden('filter_uid', null)}}
+                            {{Form::hidden('filter_country', null)}}
+                            {{Form::hidden('filter_device', null)}}
+                            {{Form::hidden('filter_network_id', null)}}
+                            {{Form::hidden('filter_status', null)}}
+                            {{Form::hidden('filter_reject', null)}}
+                            {{Form::hidden('filter_auto', null)}}
+
+                            <button class="btn btn-danger waves-effect waves-light m-t-15" value="export" type="submit" name="export">
+                                <i class="fa fa-download"></i>&nbsp; Xuất Excel
+                            </button>
+                            {!! Form::close() !!}
+
+                        </div>
                     </div>
                 </div>
             </div>
@@ -123,15 +141,15 @@
                         <th width="10%">Allow Devices</th>
                         <th width="10%">Link To Lead</th>
                         <th width="5%">Status</th>
-                        <th width="5%">Created Date</th>
+                        <th width="5%">Updated Date</th>
 
                         @if (auth('backend')->user()->isAdmin())
 
                             <th width="10%">Network OfferID</th>
                             <th width="10%">Network</th>
-                            <th width="10%">Action</th>
-                            <th width="20%">Test Msg</th>
                         @endif
+                        <th width="10%">Action</th>
+                        <th width="20%">Test Msg</th>
                     </tr>
                     </thead>
                 </table>
@@ -200,7 +218,7 @@
                     {data: 'allow_devices', name: 'allow_devices'},
                     {data: 'redirect_link_for_user', name: 'redirect_link_for_user'},
                     {data: 'status', name: 'status'},
-                    {data: 'created_at', name: 'created_at'},
+                    {data: 'updated_at', name: 'updated_at'},
 
                     @if (auth('backend')->user()->isAdmin())
 
@@ -211,9 +229,9 @@
                     {data: 'virtual_click', name: 'virtual_click'},*/
                     {data: 'network_name', name: 'network_name'},
 
+                    @endif
                     {data: 'action', name: 'action', orderable: false, searchable: false},
                     {data: 'process', name: 'process'}
-                    @endif
                 ],
                 order: [[5, 'desc']]
             });
@@ -308,6 +326,22 @@
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
+        });
+
+        $('#export-form').on('submit', function (e) {
+            $('input[name=filter_name]').val($('input[name=name]').val());
+            $('input[name=filter_uid]').val($('input[name=uid]').val());
+            $('input[name=filter_country]').val($('input[name=country]').val());
+            $('input[name=filter_device]').val($('select[name=device]').val());
+            $('input[name=filter_network_id]').val($('select[name=network_id]').val());
+            $('input[name=filter_status]').val($('select[name=status]').val());
+            $('input[name=filter_reject]').val($('select[name=reject]').val());
+            $('input[name=filter_auto]').val($('select[name=auto]').val());
+
+
+            $(this).submit();
+            datatable.draw();
+            e.preventDefault();
         });
 
     </script>

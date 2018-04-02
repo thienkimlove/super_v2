@@ -39,7 +39,7 @@ class CorrectLead extends Command
     public function handle()
     {
 
-        foreach (config('site.2nd_list') as $site) {
+        foreach (config('site.list') as $site) {
 
             $oldLeads = DB::connection($site)->table('network_clicks')->join('clicks', 'network_clicks.sub_id', '=', 'clicks.hash_tag')
                 ->join('offers', 'clicks.offer_id', '=', 'offers.id')

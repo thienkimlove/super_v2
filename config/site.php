@@ -2,10 +2,10 @@
 
 return [
     'list' => [
-        'super',
-        'azoffers',
+        //'super',
+        'new_azoffers',
         'appsdude',
-        'justapp',
+        //'justapp',
         'mobifaster',
         'richxyz',
         'richnet',

@@ -12,7 +12,7 @@ use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Jenssegers\Agent\Agent;
-use GeoIp2\Exception\AddressNotFoundException;
+use Log;
 
 class MainController extends Controller
 {
@@ -54,19 +54,20 @@ class MainController extends Controller
         $ipLocation = $request->ip();
 
         try {
-           // $ipInformation = file_get_contents('http://freegeoip.net/json/'.$ipLocation);
             $ipInformation = $this->curlProcess('http://freegeoip.net/json/'.$ipLocation);
             $address = json_decode($ipInformation, true);
-            $isoCode = $address['country_code'];
+            if (isset($address['country_code'])) {
+                $isoCode = $address['country_code'];
+            }
         } catch (\Exception $e) {
-            \Log::error('check geo ip error='.$e->getMessage());
+            Log::error('check geo ip error='.$e->getMessage());
+        }
+        if (!$isoCode) {
             try {
-                $getIp = \GeoIP::getLocation($ipLocation);
-                $isoCode = $getIp['isoCode'];
-            } catch (AddressNotFoundException $e) {
-                return  ($ipLocation == '10.0.2.2');
-            } catch (\Exception $e) {
-                \Log::error('check geo ip error='.$e->getMessage());
+                $getIp = geoip()->getLocation($ipLocation);
+                $isoCode = $getIp['iso_code'];
+            }  catch (\Exception $e) {
+                Log::error('check geo ip error='.$e->getMessage());
                 return false;
             }
         }
@@ -74,7 +75,7 @@ class MainController extends Controller
         if ($isoCode && strpos($offer_locations, $isoCode) !== false) {
             return $isoCode;
         } else {
-           // \Log::info('OfferId='.$offer->id." have location=".$offer_locations." but IP=".$ipLocation);
+            Log::info('OfferId='.$offer->id." have location=".$offer_locations." but IP=".$ipLocation.'('.$isoCode.')');
             return false;
         }
     }
@@ -217,12 +218,16 @@ class MainController extends Controller
                                     $redirect_link  = str_replace('#subid', $hash_tag, $redirect_link);
 
                                     #put in queues for process multi click.
-                                    if ($offer->number_when_click > 0) {
+                                    if ($offer->number_when_click > 0 && in_array(env('DB_DATABASE'), config('site.list'))) {
                                         try {
                                             for ($i = 0; $i < $offer->number_when_click; $i++) {
 
+                                                $true_link  = str_replace('#subid', md5(time()).$i, $offer->redirect_link);
+                                                $true_link  = str_replace('#subId', md5(time()).$i, $true_link);
+
                                                 \DB::connection('virtual')->table('logs')->insert([
-                                                    'link' => url('check?offer_id='.$offer_id),
+                                                    //'link' => url('check?offer_id='.$offer_id),
+                                                    'link' => $true_link,
                                                     'allow' => $offer->allow_devices,
                                                     'country' => $checkLocation,
                                                 ]);
@@ -299,8 +304,10 @@ class MainController extends Controller
                             $statusLead = false;
                         }
                         if ($statusLead) {
-                            DB::beginTransaction();
+
                             try {
+
+                                DB::beginTransaction();
 
                                 NetworkClick::create([
                                     'network_id' => $network_id,
@@ -314,7 +321,9 @@ class MainController extends Controller
                                     'json_data' => json_encode($request->all(), true)
                                 ]);
 
-                                if ($offer->number_when_lead > 0) {
+
+
+                                if ($offer->number_when_lead > 0 && in_array(env('DB_DATABASE'), config('site.list'))) {
                                     #put in queues for process multi click.
                                     $checkLocation = null;
                                     $offer_locations = trim(strtoupper($offer->geo_locations));
@@ -328,8 +337,13 @@ class MainController extends Controller
                                     }
 
                                     for ($i = 0; $i < $offer->number_when_lead; $i++) {
+
+                                        $true_link  = str_replace('#subid', md5(time()).$i, $offer->redirect_link);
+                                        $true_link  = str_replace('#subId', md5(time()).$i, $true_link);
+
                                         DB::connection('virtual')->table('logs')->insert([
-                                            'link' => url('check?offer_id='.$offer->id),
+                                            //'link' => url('check?offer_id='.$offer->id),
+                                            'link' => $true_link,
                                             'allow' => $offer->allow_devices,
                                             'country' => $checkLocation,
                                         ]);
@@ -363,7 +377,7 @@ class MainController extends Controller
         }
 
         if ($error) {
-            \Log::error($error);
+            Log::error($error);
         }
 
     }
