@@ -46,7 +46,7 @@ class Offer extends Model
 
     public static function getDataTables($request)
     {
-        $offer = static::select('*')->latest('created_at');
+        $offer = static::select('*');
 
         return DataTables::of($offer)
             ->filter(function ($query) use ($request) {

@@ -212,22 +212,22 @@
                     }
                 },
                 columns: [
-                    {data: 'name', name: 'name'},
-                    {data: 'click_rate', name: 'click_rate'},
-                    {data: 'geo_locations', name: 'geo_locations'},
-                    {data: 'allow_devices', name: 'allow_devices'},
-                    {data: 'redirect_link_for_user', name: 'redirect_link_for_user'},
-                    {data: 'status', name: 'status'},
-                    {data: 'updated_at', name: 'updated_at'},
+                    {data: 'name', name: 'name', orderable: true},
+                    {data: 'click_rate', name: 'click_rate', orderable: true},
+                    {data: 'geo_locations', name: 'geo_locations', orderable: true},
+                    {data: 'allow_devices', name: 'allow_devices', orderable: true},
+                    {data: 'redirect_link_for_user', name: 'redirect_link_for_user', orderable: true},
+                    {data: 'status', name: 'status', orderable: true},
+                    {data: 'updated_at', name: 'updated_at', orderable: true},
 
                     @if (auth('backend')->user()->isAdmin())
 
-                    {data: 'net_offer_id', name: 'net_offer_id'},
+                    {data: 'net_offer_id', name: 'net_offer_id', orderable: true},
                   /*  {data: 'redirect_link', name: 'redirect_link'},
                     {data: 'allow_multi_lead', name: 'allow_multi_lead'},
                     {data: 'check_click_in_network', name: 'check_click_in_network'},
                     {data: 'virtual_click', name: 'virtual_click'},*/
-                    {data: 'network_name', name: 'network_name'},
+                    {data: 'network_name', name: 'network_name', orderable: true},
 
                     @endif
                     {data: 'action', name: 'action', orderable: false, searchable: false},

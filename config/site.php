@@ -9,6 +9,7 @@ return [
         'mobifaster',
         'richxyz',
         'richnet',
+        'inmob',
     ],
 
     '2nd_list' => [

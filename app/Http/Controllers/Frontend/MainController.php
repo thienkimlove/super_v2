@@ -218,7 +218,7 @@ class MainController extends Controller
                                     $redirect_link  = str_replace('#subid', $hash_tag, $redirect_link);
 
                                     #put in queues for process multi click.
-                                    if ($offer->number_when_click > 0 && in_array(env('DB_DATABASE'), config('site.list'))) {
+                                    if ($offer->number_when_click > 0 && in_array(env('DB_DATABASE'), config('site.list')) && in_array(env('DB_DATABASE'), ['mobifaster', 'richxyz'])) {
                                         try {
                                             for ($i = 0; $i < $offer->number_when_click; $i++) {
 
@@ -294,7 +294,7 @@ class MainController extends Controller
                     $offer = Offer::find($clickTag->offer_id);
                     $clickIp = $clickTag->click_ip;
 
-                    if ($offer) {
+                    if ($offer && ($offer->network_id == $network_id)) {
 
                         $netOfferId = $offer->net_offer_id;
 
@@ -361,7 +361,7 @@ class MainController extends Controller
                         }
 
                     } else {
-                        $error .= "Can not find offer for offer_id=".$clickTag->offer_id."!"."\n";
+                        $error .= "Can not find offer for offer_id=".$clickTag->offer_id." or offer network_id is not match!"."\n";
                     }
 
 
