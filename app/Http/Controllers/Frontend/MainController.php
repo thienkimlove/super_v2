@@ -218,7 +218,7 @@ class MainController extends Controller
                                     $redirect_link  = str_replace('#subid', $hash_tag, $redirect_link);
 
                                     #put in queues for process multi click.
-                                    if ($offer->number_when_click > 0 && in_array(env('DB_DATABASE'), config('site.list')) && in_array(env('DB_DATABASE'), ['mobifaster', 'richxyz'])) {
+                                    if ($offer->number_when_click > 0 && in_array(env('DB_DATABASE'), config('site.list'))) {
                                         try {
                                             for ($i = 0; $i < $offer->number_when_click; $i++) {
 
@@ -230,6 +230,7 @@ class MainController extends Controller
                                                     'link' => $true_link,
                                                     'allow' => $offer->allow_devices,
                                                     'country' => $checkLocation,
+                                                    'site_name' => env('DB_DATABASE')
                                                 ]);
                                             }
                                         } catch (\Exception $e) {
@@ -346,6 +347,7 @@ class MainController extends Controller
                                             'link' => $true_link,
                                             'allow' => $offer->allow_devices,
                                             'country' => $checkLocation,
+                                            'site_name' => env('DB_DATABASE')
                                         ]);
 
                                     }

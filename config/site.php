@@ -15,5 +15,6 @@ return [
     '2nd_list' => [
         'affapk',
         'bestgame',
+        'svtool',
     ],
 ];

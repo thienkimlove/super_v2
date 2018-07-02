@@ -18,10 +18,6 @@ class HomeController extends AdminController
     protected function generateDashboard()
     {
 
-        if (Cache::has('generate_'.env('DB_DATABASE'))) {
-            return Cache::get('generate_'.env('DB_DATABASE'));
-        }
-
         $user = auth('backend')->user();
 
         $userId = $user->isAdmin() ? null : $user->id;
@@ -207,8 +203,6 @@ class HomeController extends AdminController
         }
 
         $generate =  [$content, $userRecent, $todayOffers, $yesterdayOffers, $weekOffers, $userTotals, $networkTotals];
-
-        Cache::put('generate_'.env('DB_DATABASE'), $generate, 10);
 
         return $generate;
 
