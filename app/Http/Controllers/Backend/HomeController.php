@@ -6,6 +6,7 @@ use App\Group;
 use App\Network;
 use App\NetworkClick;
 use App\Offer;
+use App\Site;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -208,6 +209,39 @@ class HomeController extends AdminController
 
     }
 
+    public function super()
+    {
+        $user = auth('backend')->user();
+        if (in_array($user->email, config('site.super'))) {
+            return view('super');
+        } else {
+            redirect(route('main.index'));
+        }
+    }
+    public function dataTables(Request $request)
+    {
+        return NetworkClick::getDataTablesByDatabase($request);
+
+    }
+
+    public function getByDatabase($db)
+    {
+        $users = Site::getUserByDb($db);
+
+        $networks = Site::getNetworkByDb($db);
+
+        $user_html = "<option value=''>Choose User</option>";
+        $network_html = "<option value=''>Choose Network</option>";
+
+        foreach ($users as $id => $name) {
+            $user_html .= "<option value='$id'>$name</option>";
+        }
+
+        foreach ($networks as $id => $name) {
+            $network_html .= "<option value='$id'>$name</option>";
+        }
+        return response()->json(['user' => $user_html, 'network' => $network_html]);
+    }
 
     public function index()
     {

@@ -4,6 +4,7 @@ namespace App;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class NetworkClick extends Model
@@ -119,6 +120,81 @@ class NetworkClick extends Model
             })
             ->make(true);
     }
+
+
+    public static function getDataTablesByDatabase($request)
+    {
+        $database = $request->get('database');
+
+        $query = DB::connection($database)->table('network_clicks')->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
+            ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
+            ->join('users', 'clicks.user_id', '=', 'users.id')
+            ->join('networks', 'network_clicks.network_id', '=', 'networks.id')
+            ->join('groups', 'users.group_id', '=', 'groups.id')
+            ->selectRaw("ROUND(SUM(offers.click_rate), 2) as total_money, COUNT(network_clicks.id) as total_leads")
+            ->where('offers.reject', false);
+
+        if ($request->filled('user_id')) {
+            $query->where('users.id', $request->get('user_id'));
+        }
+
+
+        if ($request->filled('network_id')) {
+            $query->where('network_clicks.network_id', $request->get('network_id'));
+        }
+
+
+        if ($request->filled('date')) {
+            $dateRange = explode('-', $request->get('date'));
+            $query->whereDate('network_clicks.created_at', '>=', Carbon::createFromFormat('d/m/Y', trim($dateRange[0]))->toDateString());
+            $query->whereDate('network_clicks.created_at', '<=', Carbon::createFromFormat('d/m/Y', trim($dateRange[1]))->toDateString());
+        }
+        $reports = $query->first();
+
+        $networkClick = DB::connection($database)->table('network_clicks')->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
+            ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
+            ->join('users', 'clicks.user_id', '=', 'users.id')
+            ->join('networks', 'network_clicks.network_id', '=', 'networks.id')
+            ->join('groups', 'users.group_id', '=', 'groups.id')
+            ->select('network_clicks.*', 'offers.name as offer_name', 'offers.id as offer_id', 'offers.click_rate as offer_click_rate', 'users.username as username')
+            ->where('offers.reject', false);
+
+        return DataTables::of($networkClick)
+            ->filter(function ($query) use ($request) {
+                if ($request->filled('user_id')) {
+                    $query->where('users.id', $request->get('user_id'));
+                }
+
+
+                if ($request->filled('network_id')) {
+                    $query->where('network_clicks.network_id', $request->get('network_id'));
+                }
+
+
+                if ($request->filled('date')) {
+                    $dateRange = explode('-', $request->get('date'));
+                    $query->whereDate('network_clicks.created_at', '>=', Carbon::createFromFormat('d/m/Y', trim($dateRange[0]))->toDateString());
+                    $query->whereDate('network_clicks.created_at', '<=', Carbon::createFromFormat('d/m/Y', trim($dateRange[1]))->toDateString());
+                }
+
+            })
+            ->addColumn('offer_name', function ($networkClick) {
+                return $networkClick->offer_name;
+            })->addColumn('offer_id', function ($networkClick) {
+                return $networkClick->offer_id;
+            })->addColumn('offer_click_rate', function ($networkClick) {
+                return $networkClick->offer_click_rate;
+            })->addColumn('username', function ($networkClick) {
+                return $networkClick->username;
+            })
+            ->addColumn('total_money', function() use ($reports) {
+                return $reports->total_money;
+            })->addColumn('total_leads', function() use ($reports) {
+                return $reports->total_leads;
+            })
+            ->make(true);
+    }
+
 
 
     public static function exportToExcel($request)

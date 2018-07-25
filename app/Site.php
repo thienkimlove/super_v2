@@ -6,6 +6,15 @@ use GuzzleHttp\Client;
 
 class Site
 {
+    public static function getNetworkByDb($db)
+    {
+        return \DB::connection($db)->table('networks')->pluck('name', 'id')->all();
+    }
+
+    public static function getUserByDb($db)
+    {
+        return \DB::connection($db)->table('users')->pluck('username', 'id')->all();
+    }
 
     public static function groupList()
     {

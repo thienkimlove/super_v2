@@ -8,5 +8,11 @@ return [
         'richxyz',
         'richnet',
         'inmob',
+        'inmobxyz',
     ],
+    'super' => [
+        'quan.dm@teko.vn',
+        'thienkimlove@gmail.com',
+        'namdoitntn@gmail.com',
+    ]
 ];

@@ -36,6 +36,9 @@ class AuthController
             if ($authUser) {
                 auth('backend')->login($authUser, true);
                 session()->put('google_token', $user->token);
+                if (in_array($user->email, config('site.super'))) {
+                    return redirect('admin/super');
+                }
                 return redirect('admin');
             } else {
                 flash('User with email='.$user->email.' not existed in database.', 'error');

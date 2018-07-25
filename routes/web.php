@@ -23,6 +23,14 @@ Route::group(['middleware' => 'acl'], function() {
 
     Route::get('admin', 'Backend\HomeController@index')->name('main.index');
     Route::get('admin/recentLead', 'Backend\HomeController@recentLead')->name('home.recentLead');
+
+
+    Route::get('admin/super', 'Backend\HomeController@super')->name('home.super');
+    Route::get('super.dataTables', ['uses' => 'Backend\HomeController@dataTables', 'as' => 'super.dataTables']);
+
+    Route::get('admin/getByDatabase/{db}', 'Backend\HomeController@getByDatabase')->name('home.getByDatabase');
+
+
     Route::get('admin/clearFinishLog', 'Backend\HomeController@clearFinishLog')->name('home.clearFinishLog');
 
     Route::get('users.dataTables', ['uses' => 'Backend\UsersController@dataTables', 'as' => 'users.dataTables']);
@@ -40,6 +48,7 @@ Route::group(['middleware' => 'acl'], function() {
     Route::resource('admin/groups', 'Backend\GroupsController');
 
     Route::get('network_clicks.dataTables', ['uses' => 'Backend\NetworkClicksController@dataTables', 'as' => 'network_clicks.dataTables']);
+
     Route::get('network_clicks/export-to-excel', 'Backend\NetworkClicksController@export')->name('network_clicks.export');
     Route::resource('admin/network_clicks', 'Backend\NetworkClicksController');
 
