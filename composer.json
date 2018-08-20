@@ -17,6 +17,7 @@
         "laravel/tinker": "~1.0",
         "laravelcollective/html": "^5.5",
         "maatwebsite/excel": "^2.1",
+        "monarobase/country-list": "^2.1",
         "predis/predis": "^1.1",
         "rap2hpoutre/laravel-log-viewer": "^0.11.0",
         "torann/geoip": "^1.0",

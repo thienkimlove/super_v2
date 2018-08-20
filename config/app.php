@@ -187,6 +187,7 @@ return [
         Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
         Torann\GeoIP\GeoIPServiceProvider::class,
+        Monarobase\CountryList\CountryListServiceProvider::class,
 
     ],
 
@@ -242,6 +243,7 @@ return [
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'Agent' => Jenssegers\Agent\Facades\Agent::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+        'Countries' => Monarobase\CountryList\CountryListFacade::class,
 
     ],
 

@@ -202,9 +202,10 @@ class Offer extends Model
                 ->setCellValue('C'.$row, $report->id)
                 ->setCellValue('D'.$row, $report->net_offer_id)
                 ->setCellValue('E'.$row, $report->name)
-                ->setCellValue('F'.$row, $report->geo_locations)
-                ->setCellValue('G'.$row, $report->click_rate)
-                ->setCellValue('H'.$row, $report->redirect_link);
+                ->setCellValue('F'.$row, $report->redirect_link)
+                ->setCellValue('G'.$row, config('devices')[$report->allow_devices])
+                ->setCellValue('H'.$row, $report->geo_locations)
+                ->setCellValue('I'.$row, $report->click_rate);
 
             $row++;
         }

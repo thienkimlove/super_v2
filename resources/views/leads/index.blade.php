@@ -80,11 +80,11 @@
                                 <label class="sr-only" for="">Offer</label>
                                 {!! Form::select('offer_id', ['' => '--- Chọn Offer ---'] + \App\Site::offerListHaveLead(), null, ['class' => 'form-control select2']) !!}
                             </div>
-
                             <div class="form-group m-l-10">
                                 <label class="sr-only" for="">Theo ngày</label>
                                 <input class="form-control input-daterange-datepicker" type="text" name="date" value="{{ \Carbon\Carbon::today()->format('d/m/Y') }} - {{ \Carbon\Carbon::today()->format('d/m/Y') }}" placeholder="Theo ngày" style="width: 200px;"/>
                             </div>
+
 
 
 

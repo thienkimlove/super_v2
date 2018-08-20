@@ -5,17 +5,59 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Click;
 use App\Http\Controllers\Controller;
+use App\Network;
 use App\NetworkClick;
 use App\Offer;
 use App\User;
 use Carbon\Carbon;
 use DB;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Jenssegers\Agent\Agent;
 use Log;
+use Countries;
 
 class MainController extends Controller
 {
+
+    public function offer_api(Request $request)
+    {
+        if ($request->input('net') == 'gowide') {
+
+            $client = new Client([
+                'base_uri' => 'https://affiliate.api.gowide.com',
+                'headers' => ['Authorization' => 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjViNmFiOGU2YzM1OTY5NmVlMjVmNzY5NCIsImlhdCI6MTUzMzgxOTU2OH0.Ydt4Q_WQKAEjBzOORyBEHY5b_9r8n9cFsh57v-Wzzc4']
+            ]);
+
+            /*$query = json_decode('{
+              "type_id": "cpi",
+              "categories": { "$in": ["ios"] }
+            }');*/
+
+            $sort = json_decode('{ "_id": -1 }');
+
+            $params = [
+                // As you already guessed query object uses basic mongo syntax for building queries,
+                // this gives you freedom and power to query how you like,
+                // but as you know with great power comes great responsibility
+                // in this case you need to know mongo queries and provide valid json ;)
+                //'query' => json_encode($query),
+                // approval_status is an aggregated field and actually does not exist in database
+                // this is why it's separated from query object this is the only exception
+                // all available options: 'require', 'pending', 'approved', 'rejected'
+                'approval_status' => 'approved',
+                // You can use skip as well
+                // 'skip' => 10,
+                'limit' => 1000000,
+                // You can use 'desc' instead of -1, and 'asc' instead of 1
+                'sort' => json_encode($sort)
+            ];
+
+            $response = $client->get('/offers', ['query' => $params]);
+            echo '{"offers": '.$response->getBody().'}';
+        }
+    }
+
 
     private function curlProcess($url)
     {
@@ -54,7 +96,10 @@ class MainController extends Controller
         $ipLocation = $request->ip();
 
         try {
-            $ipInformation = $this->curlProcess('http://freegeoip.net/json/'.$ipLocation);
+
+            $url_stack_api = 'http://api.ipstack.com/'.$ipLocation.'?access_key=c3c1bb9306de3dec55c3489cd6d35660&format=1';
+
+            $ipInformation = $this->curlProcess($url_stack_api);
             $address = json_decode($ipInformation, true);
             if (isset($address['country_code'])) {
                 $isoCode = $address['country_code'];
@@ -381,6 +426,38 @@ class MainController extends Controller
         if ($error) {
             Log::error($error);
         }
+
+    }
+
+
+    public function api_network(Request $request)
+    {
+        $networks = Network::all('id', 'name');
+
+        return response()->json($networks);
+    }
+
+    public function api_offer(Request $request)
+    {
+        $network_id = $request->input('network_id');
+        $limit = $request->input('limit');
+
+        $offers = Offer::select('id', 'name', 'geo_locations')
+            ->where('network_id', $network_id)
+            ->where('status', true)
+            ->orderBy('updated_at', 'desc')
+            ->limit($limit)
+            ->get();
+
+        foreach ($offers as $offer) {
+            $temp_locations = explode(',', $offer->geo_locations);
+            $offer->geo_locations = strtoupper(Countries::getOne($temp_locations[0], 'en'));
+        }
+
+        if ($network_id && $limit) {
+            return response()->json($offers);
+        }
+
 
     }
 

@@ -57,12 +57,20 @@ Route::group(['middleware' => 'acl'], function() {
     Route::get('networks.cron/{id}', ['uses' => 'Backend\NetworksController@cron', 'as' => 'networks.cron']);
     Route::resource('admin/networks', 'Backend\NetworksController');
 
+    Route::get('ssh.view', ['uses' => 'Backend\AdminController@sshView', 'as' => 'ssh.view']);
+    Route::post('ssh.tool', ['uses' => 'Backend\AdminController@sshTool', 'as' => 'ssh.tool']);
 });
 
 
 
 #Frontend Routes
 Route::get('/', 'Frontend\MainController@index')->name('frontend.index');
+Route::get('api/networks', 'Frontend\MainController@api_network')->name('frontend.api_network');
+Route::get('api/offers', 'Frontend\MainController@api_offer')->name('frontend.api_offer');
+
+
+
+Route::get('offer_api', 'Frontend\MainController@offer_api')->name('frontend.offer_api');
 Route::get('camp', 'Frontend\MainController@camp')->name('frontend.camp');
 Route::get('check', 'Frontend\MainController@check')->name('frontend.check');
 Route::get('postback', 'Frontend\MainController@inside')->name('frontend.inside.postback');

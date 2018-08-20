@@ -209,11 +209,104 @@ class HomeController extends AdminController
 
     }
 
+
+    protected function generateDashboardBySite($site)
+    {
+
+        $todayStart = Carbon::now()->startOfDay();
+        $todayEnd = Carbon::now()->endOfDay();
+
+
+        $startWeek = Carbon::now()->startOfWeek();
+        $endWeek = Carbon::now()->endOfWeek();
+
+        $startMonth = Carbon::now()->startOfMonth();
+        $endMonth = Carbon::now()->endOfMonth();
+
+
+        $initQuery = DB::connection($site)->table('network_clicks')
+            ->join('clicks', 'network_clicks.click_id', '=', 'clicks.id')
+            ->join('offers', 'network_clicks.offer_id', '=', 'offers.id')
+            ->join('users', 'clicks.user_id', '=', 'users.id')
+            ->join('networks', 'networks.id', '=', 'network_clicks.network_id')
+            ->where('offers.reject', false);
+
+        //recent lead.
+        //money
+        $moneyQuery = clone $initQuery;
+        $moneyQuery = $moneyQuery->select(DB::raw("SUM(offers.click_rate) as total"));
+
+
+        $todayMoneyQuery = clone $moneyQuery;
+        $monthMoneyQuery = clone $moneyQuery;
+        $totalMoneyQuery = clone $moneyQuery;
+
+        $todayMoneyQuery = $todayMoneyQuery->whereBetween('network_clicks.created_at', [$todayStart, $todayEnd])->get();
+        $monthMoneyQuery = $monthMoneyQuery->whereBetween('network_clicks.created_at', [$startMonth, $endMonth])->get();
+        $totalMoneyQuery = $totalMoneyQuery->get();
+
+        $content = [
+            'today' => ($todayMoneyQuery->count() > 0) ? $todayMoneyQuery->first()->total : 0,
+            'month' => ($monthMoneyQuery->count() > 0) ? $monthMoneyQuery->first()->total : 0,
+            'total' => ($totalMoneyQuery->count() > 0) ? $totalMoneyQuery->first()->total : 0,
+        ];
+
+        $userDayQuery = clone $initQuery;
+        $userWeekQuery = clone $initQuery;
+        $userMonthQuery = clone $initQuery;
+
+        $userTotals = [];
+
+        $todayUserMoney = $userDayQuery
+            ->select(DB::raw("SUM(offers.click_rate) as total, users.id, users.username"))
+            ->whereBetween('network_clicks.created_at', [$todayStart, $todayEnd])
+            ->groupBy('users.id')
+            ->get();
+
+        $thisWeekUserMoney = $userWeekQuery
+            ->select(DB::raw("SUM(offers.click_rate) as total, users.id, users.username"))
+            ->whereBetween('network_clicks.created_at', [$startWeek, $endWeek])
+            ->groupBy('users.id')
+            ->get();
+
+        $thisMonthUserMoney = $userMonthQuery
+            ->select(DB::raw("SUM(offers.click_rate) as total, users.id, users.username"))
+            ->whereBetween('network_clicks.created_at', [$startMonth, $endMonth])
+            ->groupBy('users.id')
+            ->get();
+
+        foreach ($todayUserMoney as $userMoney) {
+            $userTotals[$userMoney->id]['day'] = $userMoney->total;
+            $userTotals[$userMoney->id]['username'] = $userMoney->username;
+        }
+
+        foreach ($thisWeekUserMoney as $userMoney) {
+            $userTotals[$userMoney->id]['week'] = $userMoney->total;
+            $userTotals[$userMoney->id]['username'] = $userMoney->username;
+        }
+
+        foreach ($thisMonthUserMoney as $userMoney) {
+            $userTotals[$userMoney->id]['month'] = $userMoney->total;
+            $userTotals[$userMoney->id]['username'] = $userMoney->username;
+        }
+        return [$content, $userTotals];
+
+    }
+
     public function super()
     {
         $user = auth('backend')->user();
         if (in_array($user->email, config('site.super'))) {
-            return view('super');
+            $data = [];
+            foreach (config('site.list') as $site) {
+                list($content, $userTotals) = $this->generateDashboardBySite($site);
+                $data[$site] = [
+                    'general' => $content,
+                    'user' => $userTotals,
+                ];
+            }
+
+            return view('all', compact('data'));
         } else {
             redirect(route('main.index'));
         }
