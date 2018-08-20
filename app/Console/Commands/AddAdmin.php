@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\User;
+use DB;
 use Illuminate\Console\Command;
 
 class AddAdmin extends Command
@@ -12,7 +13,7 @@ class AddAdmin extends Command
      *
      * @var string
      */
-    protected $signature = 'add:admin {--email=}';
+    protected $signature = 'add:admin {--email=} {--db=}';
 
     /**
      * The console command description.
@@ -39,9 +40,10 @@ class AddAdmin extends Command
     public function handle()
     {
         $email = $this->option('email');
+        $db = $this->option('db');
         if ($email) {
             $this->line('Create Admin with email='.$email);
-            User::create([
+            DB::connection($db)->table('users')->insert([
                 'email' => $email,
                 'permission_id' => 1,
                 'username' => 'Admin'

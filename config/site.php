@@ -9,6 +9,8 @@ return [
         'richnet',
         'inmob',
         'inmobxyz',
+        'cybernet',
+        'cyberxyz',
     ],
     'super' => [
         'quan.dm@teko.vn',
