@@ -31,7 +31,7 @@ class AuthController
     {
         try {
             $user = Socialite::driver('google')->user();
-            $authUser = User::where('email', $user->email)->first();
+            $authUser = User::where('email', $user->email)->where('status', true)->first();
 
             if ($authUser) {
                 auth('backend')->login($authUser, true);

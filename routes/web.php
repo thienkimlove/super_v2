@@ -67,10 +67,12 @@ Route::group(['middleware' => 'acl'], function() {
 Route::get('/', 'Frontend\MainController@index')->name('frontend.index');
 Route::get('api/networks', 'Frontend\MainController@api_network')->name('frontend.api_network');
 Route::get('api/offers', 'Frontend\MainController@api_offer')->name('frontend.api_offer');
+Route::get('api/users', 'Frontend\MainController@api_user')->name('frontend.api_user');
 
 
 
 Route::get('offer_api', 'Frontend\MainController@offer_api')->name('frontend.offer_api');
+Route::get('ip', 'Frontend\MainController@ip')->name('frontend.ip');
 Route::get('camp', 'Frontend\MainController@camp')->name('frontend.camp');
 Route::get('check', 'Frontend\MainController@check')->name('frontend.check');
 Route::get('postback', 'Frontend\MainController@inside')->name('frontend.inside.postback');

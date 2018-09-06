@@ -44,6 +44,20 @@
                         </div>
 
                         <div class="form-group">
+                            <label class="col-md-3 control-label">Postback Prefix</label>
+                            <div class="col-md-9">
+                                {!! Form::text('prefix', 'aff_sub', ['id' => 'prefix', 'class' => 'form-control', 'placeholder' => 'Postback Prefix']) !!}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">IDFA Name</label>
+                            <div class="col-md-9">
+                                {!! Form::text('idfa_name', null, ['id' => 'idfa_name', 'class' => 'form-control', 'placeholder' => 'IDFA Name']) !!}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="col-md-3 control-label">Chia Giá Offer Cho</label>
                             <div class="col-md-9">
                                 {!! Form::number('rate_offer', null, ['id' => 'rate_offer', 'class' => 'form-control', 'placeholder' => 'Chia Giá Offer']) !!}

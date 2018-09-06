@@ -12,7 +12,9 @@ class Network extends Model
         'cron',
         'rate_offer',
         'virtual_click',
-        'virtual_lead'
+        'virtual_lead',
+        'prefix',
+        'idfa_name',
     ];
 
     public function offers()

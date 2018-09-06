@@ -43,6 +43,20 @@
                             </div>
                         </div>
 
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Postback Prefix</label>
+                            <div class="col-md-9">
+                                {!! Form::text('prefix', $network->prefix, ['id' => 'prefix', 'class' => 'form-control', 'placeholder' => 'Postback Prefix']) !!}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">IDFA Name</label>
+                            <div class="col-md-9">
+                                {!! Form::text('idfa_name', $network->idfa_name, ['id' => 'idfa_name', 'class' => 'form-control', 'placeholder' => 'IDFA Name']) !!}
+                            </div>
+                        </div>
+
 
                         <div class="form-group">
                             <label class="col-md-3 control-label">Chia Giá Offer Cho</label>

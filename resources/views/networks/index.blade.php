@@ -67,7 +67,9 @@
                         <th width="10%">ID</th>
                         <th width="10%">Name</th>
                         <th width="15%">Total Offer Not Lead</th>
-                        <th width="15%">CronURL</th>
+                        <th width="10%">CronURL</th>
+                        <th width="5%">Prefix</th>
+                        <th width="5%">IDFA Name</th>
                         <th width="10%">Chia Giá</th>
                         <th width="10%">Virtual When have Click</th>
                         <th width="10%">Virtual When have Lead</th>
@@ -131,6 +133,8 @@
                     {data: 'name', name: 'name'},
                     {data: 'not_lead_count', name: 'not_lead_count'},
                     {data: 'cron', name: 'cron'},
+                    {data: 'prefix', name: 'prefix'},
+                    {data: 'idfa_name', name: 'idfa_name'},
                     {data: 'rate_offer', name: 'rate_offer'},
                     {data: 'virtual_click', name: 'virtual_click'},
                     {data: 'virtual_lead', name: 'virtual_lead'},
