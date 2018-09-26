@@ -109,7 +109,14 @@ class Offer extends Model
                 return config('devices')[$offer->allow_devices];
             })
             ->addColumn('redirect_link_for_user', function ($offer) {
-                return url('camp?offer_id='.$offer->id.'&user_id='.auth('backend')->user()->id);
+                $idfa_params = '';
+                 if ($offer->network->idfa_name) {
+                    $idfa_params = '&'.$offer->network->idfa_name.'={idfa}';
+
+                }
+
+
+                return url('camp?offer_id='.$offer->id.'&user_id='.auth('backend')->user()->id).$idfa_params;
             })
             ->addColumn('network_name', function ($offer) {
                 return $offer->network ? $offer->network->name : '';

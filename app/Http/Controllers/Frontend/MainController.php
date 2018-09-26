@@ -50,7 +50,7 @@ class MainController extends Controller
                 // 'skip' => 10,
                 'limit' => 1000000,
                 // You can use 'desc' instead of -1, and 'asc' instead of 1
-                'sort' => json_encode($sort)
+               // 'sort' => json_encode($sort)
             ];
 
             $response = $client->get('/offers', ['query' => $params]);
@@ -213,7 +213,7 @@ class MainController extends Controller
     {
         $offer_id = null;
         $user_id = null;
-        $idfa = null;
+
         if ($request->filled('offer_id')) {
             $offer_id = (int) $request->get('offer_id');
         }
@@ -223,9 +223,8 @@ class MainController extends Controller
         }
 
 
-        if ($request->filled('idfa')) {
-            $idfa = $request->get('idfa');
-        }
+
+
 
 
         if ($offer_id && $user_id) {
@@ -303,17 +302,19 @@ class MainController extends Controller
                                         }
                                     }
 
-                                    $idfa_param_name = "idfa";
+                                    $idfa = null;
 
-                                    if ($offer->network->idfa_name) {
-                                        $idfa_param_name = $offer->network->idfa_name;
+                                    $idfa_name = ($offer->network->idfa_name) ? $offer->network->idfa_name : 'idfa';
 
+                                    if ($request->filled($idfa_name)) {
+                                        $idfa =  $request->get($idfa_name);
+                                    }
+
+                                    if ($idfa)  {
+                                        $redirect_link = $redirect_link.'&'.$idfa_name.'='.$idfa;
                                     }
 
 
-                                   if ($idfa) {
-                                       $redirect_link  = $redirect_link.'&'.$idfa_param_name.'='.$idfa;
-                                   }
 
                                     //Log::info('REDIRECT LINK='.$redirect_link);
                                     return redirect()->away($redirect_link);
@@ -494,7 +495,6 @@ class MainController extends Controller
                 ->where('status', true)
                 ->whereIn('allow_devices', [5, 6, 7])
                 ->orderBy('updated_at', 'desc')
-                ->where('geo_locations', 'like', '%RU%')
                 //->skip($offset*$limit)->take($limit)
                 ->get();
         } else {
@@ -509,7 +509,7 @@ class MainController extends Controller
                 $temp_name = preg_replace('/\s+/', '', $each_name);
                 $temp_name = strtolower($temp_name);
 
-                if ((strpos($temp_name, $country) !== false) || (strpos($country, $temp_name) !== false)) {
+                if ($temp_name == $country) {
                     $country_code = $each_code;
                 }
 
@@ -536,7 +536,7 @@ class MainController extends Controller
 
         foreach ($offers as $offer) {
             $temp_locations = explode(',', $offer->geo_locations);
-            $offer->geo_locations = strtoupper(Countries::getOne($temp_locations[0], 'en'));
+            $offer->geo_locations = strtoupper($country);
         }
 
         return response()->json($offers);
