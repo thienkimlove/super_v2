@@ -188,6 +188,21 @@ return [
             'unix_socket' => '/var/run/mysqld/mysqld.sock'
         ],
 
+        'duc_super' => [
+            'driver' => 'mysql',
+            'host' => '127.0.0.1',
+            'port' => '3306',
+            'database' => 'duc_super',
+            'username' => 'root',
+            'password' => 'tieungao',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+            'unix_socket' => '/var/run/mysqld/mysqld.sock'
+        ],
+
         'cyberxyz' => [
             'driver' => 'mysql',
             'host' => '127.0.0.1',

@@ -44,6 +44,16 @@
                             </div>
                         </div>
 
+                        @if (env('GOOGLE_AUTH_STOP') == 1)
+                            <div class="form-group">
+                                <label class="col-md-3 control-label">Password</label>
+                                <div class="col-md-9">
+                                    {!! Form::password('password', null, ['id' => 'password', 'class' => 'form-control', 'placeholder' => 'Password']) !!}
+                                </div>
+                            </div>
+
+                        @endif
+
                         <div class="form-group">
                             <label class="col-md-3 control-label">Group</label>
                             <div class="col-md-9">

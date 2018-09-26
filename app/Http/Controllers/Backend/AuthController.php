@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Backend;
 
 use App\User;
 use Exception;
+use Hash;
+use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthController
@@ -14,12 +16,42 @@ class AuthController
      */
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        if (env('GOOGLE_AUTH_STOP') == 1) {
+            return view('auth.login');
+        } else {
+            return Socialite::driver('google')->redirect();
+        }
+
     }
 
     public function notice()
     {
         return view('notice');
+    }
+
+    public function ext_login(Request $request)
+    {
+        if ($request->filled('email') && $request->filled('password')) {
+            $userEmail = $request->get('email');
+            $userPass = md5(trim($request->get('password')));
+            $authUser = User::where('email', $userEmail)
+                ->where('password', $userPass)
+                ->where('status', true)
+                ->first();
+
+            if ($authUser) {
+                auth('backend')->login($authUser, true);
+
+                if (in_array($userEmail, config('site.super'))) {
+                    return redirect('admin/super');
+                }
+                return redirect('admin');
+            } else {
+                flash('User with email='.$userEmail.' not existed in database.', 'error');
+                return redirect('notice');
+            }
+
+        }
     }
 
 

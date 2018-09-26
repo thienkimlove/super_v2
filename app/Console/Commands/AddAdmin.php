@@ -13,7 +13,7 @@ class AddAdmin extends Command
      *
      * @var string
      */
-    protected $signature = 'add:admin {--email=} {--db=}';
+    protected $signature = 'add:admin {--email=} {--db=} {--pass=}';
 
     /**
      * The console command description.
@@ -41,12 +41,14 @@ class AddAdmin extends Command
     {
         $email = $this->option('email');
         $db = $this->option('db');
+        $pass = $this->option('pass');
         if ($email) {
             $this->line('Create Admin with email='.$email);
             DB::connection($db)->table('users')->insert([
                 'email' => $email,
                 'permission_id' => 1,
-                'username' => 'Admin'
+                'username' => 'Admin',
+                'password' => md5($pass)
             ]);
             $this->line('Done');
         }

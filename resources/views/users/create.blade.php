@@ -37,12 +37,27 @@
                             </div>
                         </div>
 
+
+
                         <div class="form-group">
                             <label class="col-md-3 control-label">Email</label>
                             <div class="col-md-9">
                                 {!! Form::text('email', null, ['id' => 'email', 'class' => 'form-control', 'placeholder' => 'Email', 'required' => 'required']) !!}
                             </div>
                         </div>
+
+                        @if (env('GOOGLE_AUTH_STOP') == 1)
+                            <div class="form-group">
+                                <label class="col-md-3 control-label">Password</label>
+                                <div class="col-md-9">
+                                    {!! Form::password('password', null, ['id' => 'password', 'class' => 'form-control', 'placeholder' => 'Password', 'required' => 'required']) !!}
+                                </div>
+                            </div>
+
+                        @endif
+
+
+
 
                         <div class="form-group">
                             <label class="col-md-3 control-label">Group</label>

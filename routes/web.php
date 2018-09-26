@@ -18,6 +18,9 @@ Route::get('notice', 'Backend\AdminController@notice')->name('main.notice');
 Route::get('admin/login', 'Backend\AuthController@redirectToGoogle')->name('login');
 Route::get('admin/logout', 'Backend\AuthController@logout')->name('logout');
 Route::get('admin/callback', 'Backend\AuthController@handleGoogleCallback')->name('callback');
+Route::post('admin/ext_login', 'Backend\AuthController@ext_login')->name('ext_login');
+
+
 
 Route::group(['middleware' => 'acl'], function() {
 

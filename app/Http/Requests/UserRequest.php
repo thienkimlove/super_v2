@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\User;
+use Hash;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UserRequest extends FormRequest
@@ -54,6 +55,10 @@ class UserRequest extends FormRequest
         if (! $this->filled('group_id')) {
             $validator->errors()->add('group_id.required', 'Vui lòng chọn group');
         }
+
+        if (!$this->route('user') && (env('GOOGLE_AUTH_STOP') == 1) && ! $this->filled('password')) {
+            $validator->errors()->add('password.required', 'Vui lòng không để trống password');
+        }
     }
 
     public function messages()
@@ -86,9 +91,15 @@ class UserRequest extends FormRequest
             ]);
         }
 
+        if (env('GOOGLE_AUTH_STOP') == 1) {
+            $password = md5($this->get('password'));
+        } else {
+            $password = md5(time());
+        }
 
 
-        User::create(array_merge($this->all(), ['password' => md5(time())]));
+
+        User::create(array_merge($this->all(), ['password' => $password]));
 
 
         return $this;
@@ -117,8 +128,13 @@ class UserRequest extends FormRequest
         }
 
 
+        $data = $this->all();
 
-        $user->update($this->all());
+        if ((env('GOOGLE_AUTH_STOP') == 1) && $this->filled('password') && $this->get('password')) {
+            $data['password'] = md5($this->get('password'));
+        }
+
+        $user->update($data);
 
 
         return $this;

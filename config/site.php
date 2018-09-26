@@ -11,6 +11,7 @@ return [
         'inmobxyz',
         'cybernet',
         'cyberxyz',
+        'duc_super',
     ],
     'super' => [
         'quan.dm@teko.vn',
